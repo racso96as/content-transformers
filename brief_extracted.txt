@@ -1,0 +1,589 @@
+
+
+PROJECT BRIEF
+
+LEGENDS
+
+Content Transformer per studenti universitari
+
+Documento di brief per Claude Design  |  Wireframe Prototipo V1
+
+Versione 1.0  ·  2025  ·  Beam Me Up
+
+01  SINTESI DEL PROGETTO
+
+Legends è una piattaforma web che trasforma i materiali didattici caricati da docenti e studenti (PDF, slide, appunti) in contenuti flessibili, adattivi e personalizzati, calibrati sulla fase di studio (esplorazione, studio attivo, preparazione esame) e sullo stile cognitivo dello studente. Il sistema integra rielaborazione AI dei contenuti, chatbot RAG contestuale, monitoraggio della sessione e un sistema di gamification con l&apos;Albero della Concentrazione come elemento visivo centrale.
+
+Matrice 5W2H
+
+Dimensione
+
+Domanda
+
+Risposta
+
+COSA
+
+Cosa si costruisce?
+
+Piattaforma web di studio adattivo con AI: rielaborazione contenuti, chatbot RAG, profilo studente, gamification
+
+PERCHÉ
+
+Perché è necessario?
+
+Gap tra abbondanza di materiali e capacità degli studenti di trasformarli in percorsi di studio efficaci e personalizzati
+
+CHI
+
+Chi lo usa?
+
+Matricole di ingegneria universitaria (utente primario); docenti (caricamento materiali)
+
+DOVE
+
+In quale contesto?
+
+Web app responsive, uso prevalente da desktop durante sessioni di studio; mobile per notifiche e gamification
+
+QUANDO
+
+Fasi?
+
+V1: wireframe prototipo → validazione cliente → hi-fi → sviluppo Claude Code
+
+COME
+
+Come?
+
+Stack AI: API Anthropic/OpenAI + Gemini per RAG; frontend web moderno; layer ontologico per profilazione
+
+QUANTO
+
+Risorse?
+
+Budget API da definire; team 4 persone; timeline 8 mesi totali progetto
+
+02  PROBLEMA CENTRALE
+
+Situazione attuale (As-Is)
+
+Le matricole di ingegneria ricevono slide, PDF e registrazioni ma mancano di strumenti per rielaborarli in modo strutturato. Il risultato è uno studio passivo: fruizione dei materiali senza sintesi attiva, esercitazione progressiva o autovalutazione. Strumenti come ChatGPT o NotebookLM esistono ma non sono integrati con la progressione didattica del singolo corso né con lo stile cognitivo dello studente.
+
+Situazione desiderata (To-Be)
+
+Lo studente carica il materiale del corso, seleziona la fase di studio in cui si trova e riceve contenuti rielaborati nel formato più adatto (schema, mappa, quiz, simulazione). La piattaforma monitora la sessione, adatta la difficoltà, mantiene il profilo nel tempo e motiva tramite gamification. Il docente può caricare materiali ufficiali che diventano la base di conoscenza del sistema.
+
+Le tre fasi dell&apos;apprendimento supportate
+
+🔍  Esplorazione iniziale
+
+📚  Studio attivo
+
+🎯  Preparazione esame
+
+Riassunti discorsivi, mappe concettuali, overview degli argomenti. Quiz generici per testare la comprensione iniziale.
+
+Schemi dettagliati, esercizi specifici graduati per difficoltà, flashcard. Il sistema adatta la difficoltà al profilo.
+
+Simulazioni d&apos;esame complete, domande aperte simulate, ripasso mirato sulle lacune identificate dal profilo.
+
+03  ARCHETIPI UTENTE
+
+Archetipo
+
+Ruolo
+
+Obiettivo
+
+Livello tecnico
+
+Non tollera
+
+La Matricola Sopraffatta
+
+Studente I anno ingegneria
+
+Trasformare slide in schemi studiabili senza sapere da dove iniziare
+
+Base
+
+Complessità, troppi click per iniziare, interfacce accademiche freddde
+
+Il Metodico Avanzato
+
+Studente III-V anno
+
+Ottimizzare il tempo di studio con quiz adattivi e simulazioni esame
+
+Intermedio
+
+Risultati generici non contestualizzati al proprio corso, lentezza
+
+Il Docente Collaborativo
+
+Professore/ricercatore
+
+Caricare materiali ufficiali che diventano base di conoscenza per gli studenti
+
+Base-Intermedio
+
+Processi di upload complicati, perdita di controllo sui contenuti
+
+04  ARCHITETTURA DELLE FEATURE (QFD)
+
+Le feature sono ordinate per priorità derivata dalla matrice CTQ-Feature del QFD. Il Sistema di Rielaborazione è il principale differenziatore competitivo (nessun competitor offre simulazione d&apos;esame adattiva integrata). Le sezioni seguenti descrivono ogni feature con le specifiche necessarie per il wireframe.
+
+Feature 1 — Sistema di Rielaborazione dei Contenuti  [Rank 1 · 19,6%]
+
+⭐ CORE DIFFERENZIANTE — Nessun competitor offre rielaborazione adattiva integrata. Deve essere il cuore visivo della piattaforma: lo studente arriva qui dopo il caricamento.
+
+Funzione: trasforma l&apos;input (PDF, slide, testo) in più formati di output usando modelli AI, adattando il formato alla fase di studio e allo stile cognitivo del profilo.
+
+Elementi UI da includere nel wireframe:
+
+Selettore della fase di studio (3 opzioni visibili: Esplorazione / Studio Attivo / Preparazione Esame) come tab o toggle ben evidenziato — è la prima scelta che fa lo studente
+
+Pannello di selezione formato output: icone/card selezionabili per Riassunto testuale, Schema, Mappa concettuale, Quiz, Simulazione d&apos;esame — almeno 5 opzioni visibili contemporaneamente
+
+Area di anteprima del contenuto rielaborato (zona grande, &gt;50% della schermata) con possibilità di passare da un formato all&apos;altro senza ricaricare
+
+Indicatore di adattamento al profilo: piccolo badge o tooltip che spiega perché la difficoltà è stata impostata a quel livello (&apos;Basato sul tuo profilo: difficoltà media&apos;)
+
+Bottone &apos;Rielabora con un altro formato&apos; sempre accessibile
+
+Barra di avanzamento o stato durante la generazione AI (loading state)
+
+Feature 2 — Sistema di Profilazione dello Studente  [Rank 2 · 15,2%]
+
+Costruisce e aggiorna il profilo di ogni studente: stile cognitivo, difficoltà riscontrate, livello di concentrazione, argomenti già padroneggiati e lacune ricorrenti. Usa un layer ontologico per connettere attributi e adattare tutte le feature della piattaforma.
+
+Elementi UI da includere nel wireframe:
+
+Schermata &apos;Il mio profilo&apos; con sezioni: Stile cognitivo identificato (es. visivo / analitico / misto), Argomenti padroneggiati, Lacune ricorrenti
+
+Visualizzazione grafica delle performance per argomento (es. radar chart o barre per materia/topic)
+
+Indicatore del livello complessivo dello studente per ogni corso caricato
+
+Sezione &apos;Adattamenti attivi&apos;: mostra come il profilo sta influenzando la piattaforma in questo momento (es. &apos;Difficoltà aumentata su Analisi I&apos;, &apos;Formato visivo preferito attivato&apos;)
+
+Onboarding iniziale: 3-5 domande rapide per costruire il profilo di partenza (schermata dedicata per nuovi utenti)
+
+Feature 3 — Modulo RAG e Inserimento Dati  [Rank 3 · 13,8%]
+
+Infrastruttura centrale che permette il caricamento di materiali didattici (PDF, slide, appunti). Processa i documenti (estrazione testo, chunking, embedding) e li rende interrogabili dai modelli AI. È la base su cui si appoggiano rielaborazione e chatbot.
+
+Elementi UI da includere nel wireframe:
+
+Area di upload con drag &amp; drop chiaro, supporto visibile per PDF e slide (.pdf, .pptx, .docx)
+
+Lista dei materiali caricati con: nome file, data caricamento, stato elaborazione (In elaborazione / Pronto / Errore)
+
+Barra di progresso durante l&apos;elaborazione del documento
+
+Organizzazione per corso: ogni materiale è associato a un corso creato dallo studente (es. &apos;Analisi Matematica I&apos;, &apos;Fisica I&apos;)
+
+Bottone per eliminare o aggiornare un materiale
+
+Riepilogo: &apos;X documenti caricati · Y pagine indicizzate · Ultimo aggiornamento: oggi&apos;
+
+Feature 4 — Sistema di Monitoraggio delle Performance  [Rank 4 · 10,9%]
+
+Raccoglie, organizza e analizza i risultati dello studente nel tempo. Offre una dashboard che mostra l&apos;andamento per argomento e identifica aree di miglioramento.
+
+Elementi UI da includere nel wireframe:
+
+Dashboard performance con grafici temporali: andamento del punteggio medio nei quiz per corso
+
+Vista per argomento: quali topic vengono sbagliati più frequentemente (lista con indicatore colorato: verde/giallo/rosso)
+
+Scheda &apos;Sessione corrente&apos;: punteggio della sessione di studio appena terminata vs media storica
+
+Bottone &apos;Ripassa le lacune&apos; che porta direttamente al Sistema di Rielaborazione filtrato sugli argomenti deboli
+
+Storico delle sessioni: tabella con data, corso, durata, punteggio
+
+Feature 5 — Modulo Chatbot RAG  [Rank 5 · 10,0%]
+
+Assistente conversazionale che risponde a domande sui materiali di studio caricati. Non è un chatbot generico: recupera informazioni dai documenti del corso (RAG) e fornisce risposte contestualizzate, riducendo le allucinazioni.
+
+Elementi UI da includere nel wireframe:
+
+Interfaccia chat classica: bolla utente a destra, bolla AI a sinistra, campo di input in basso
+
+Selettore &apos;Stai parlando di:&apos; in alto — permette di scegliere quale corso/materiale vuole interrogare
+
+Indicatore delle fonti citate nella risposta: piccolo riferimento al documento (&apos;Da: Slide Lezione 3, pag. 12&apos;)
+
+Modalità &apos;Tutor Socratico&apos;: toggle che cambia il comportamento del chatbot da risposta diretta a guida con domande (allineato al progetto didattico)
+
+Cronologia conversazioni nella sidebar: per riaprire chat precedenti per corso
+
+Stato del modello: badge discreto che mostra se il RAG è attivo o se sta rispondendo con conoscenza generale
+
+Feature 6 — Sistema di Ricompense Gamificato — L&apos;Albero della Concentrazione  [Rank 6 · 10,4%]
+
+⭐ ELEMENTO VISIVO DISTINTIVO — L&apos;Albero della Concentrazione è la rappresentazione visiva centrale della piattaforma. Cresce proporzionalmente al tempo di studio concentrato accumulato nelle sessioni. Deve avere un ruolo prominente nell&apos;interfaccia e creare attaccamento emotivo.
+
+Funzione: mantenere alta la motivazione nel tempo assegnando punti e mostrando la progressione visiva dell&apos;Albero della Concentrazione, che cresce con ogni sessione di studio concentrata completata.
+
+Elementi UI da includere nel wireframe:
+
+L&apos;Albero della Concentrazione: illustrazione centrale nella home/dashboard — deve occupare spazio significativo. Mostra visivamente lo stadio di crescita corrente (seme → germoglio → alberello → albero maturo → albero con chioma piena). Ogni stadio corrisponde a ore accumulate di studio concentrato.
+
+Contatore &apos;Tempo di concentrazione totale&apos; ben visibile accanto o sotto l&apos;albero (es. &apos;12h 34m concentrate&apos;)
+
+Notifica/animazione quando l&apos;albero avanza di stadio (momento celebrativo)
+
+Sistema punti: badge o indicatore di punti accumulati per sessione completata, quiz superato, streak giornaliera
+
+Schermata condivisione risultati: card shareable con l&apos;albero allo stadio corrente + statistiche principali (da condividere su social o con amici)
+
+Leaderboard opzionale: classifica anonima o tra amici per tempo di concentrazione settimanale
+
+Feature 7 — Sistema di Monitoraggio della Sessione  [Rank 7 · 11,1%]
+
+Traccia lo svolgimento della sessione di studio: durata, periodi di inattività, uscite dalla piattaforma. I dati alimentano il Sistema di Ricompense (tempo concentrato → crescita albero) e il Sistema di Profilazione (livello di coinvolgimento nel tempo).
+
+Elementi UI da includere nel wireframe:
+
+Timer di sessione: orologio o conto alla rovescia visibile durante lo studio (non invasivo, posizionato in alto o nell&apos;angolo)
+
+Indicatore di stato concentrazione: mostra se la sessione è attiva (verde) o se è stato rilevato un periodo di inattività (grigio/arancione)
+
+Alert di sovraccarico cognitivo: popup/banner discreto quando viene raggiunta la durata massima impostata per la sessione (&apos;Hai studiato per 90 minuti. Ti consigliamo una pausa.&apos;)
+
+Pausa manuale: bottone per mettere in pausa la sessione senza perdere il tempo accumulato
+
+Riepilogo sessione a fine studio: scheda con durata totale, tempo effettivo concentrato, argomenti studiati, punti guadagnati per l&apos;Albero
+
+Feature 8 — Sistema di Notificazione  [Rank 8 · 9,1%]
+
+Invia notifiche di supporto all&apos;apprendimento: promemoria di studio, avvisi su periodi di inattività, risultati delle attività, pop-up motivazionali. Si integra con il Sistema di Monitoraggio della Sessione e il Sistema di Ricompense.
+
+Elementi UI da includere nel wireframe:
+
+Centro notifiche: icona campanella in header con badge numerico per notifiche non lette
+
+Pannello notifiche: dropdown o sidebar con lista delle ultime notifiche (tipo, messaggio, orario)
+
+Tipologie visibili nel wireframe: Promemoria studio (&apos;Non hai studiato Analisi I da 3 giorni&apos;), Risultato attività (&apos;Hai completato il quiz con 8/10&apos;), Pop-up motivazionale (&apos;Sei al 70% dell&apos;obiettivo settimanale!&apos;)
+
+Preferenze notifiche: schermata impostazioni con toggle per ogni tipo di notifica e impostazione orari
+
+Notifica in-app durante la sessione: banner non invasivo in alto per alert inattività o congratulazioni
+
+05  SCOPE DEL PROTOTIPO (WIREFRAME V1)
+
+✅  IN SCOPE — Da prototipare in V1
+
+❌  OUT OF SCOPE — V2 o non incluso
+
+Dashboard principale con Albero della Concentrazione
+
+Schermata caricamento materiali (Modulo RAG)
+
+Schermata rielaborazione contenuti con selettore fase e formato
+
+Interfaccia chatbot con selettore corso
+
+Dashboard performance con grafici
+
+Schermata profilo studente
+
+Timer e riepilogo sessione
+
+Centro notifiche (icona + pannello)
+
+Onboarding iniziale (3-5 schermate)
+
+Navigazione tra le sezioni (menu principale)
+
+Autenticazione e registrazione (placeholder sufficiente)
+
+Integrazione reale con API AI (solo UI)
+
+Leaderboard tra utenti (accennata, non funzionale)
+
+Pannello docente per caricamento (V2)
+
+Layer ontologico visibile all&apos;utente (V2)
+
+App mobile nativa (responsive web sufficiente)
+
+Integrazione calendario universitario (V2)
+
+06  SCHERMATE PRINCIPALI E FLUSSO DI NAVIGAZIONE
+
+Flusso principale: Login/Onboarding → Dashboard (Albero + Overview) → Seleziona corso → Carica materiali → Seleziona fase studio → Rielabora contenuto → Sessione di studio (timer attivo) → Fine sessione (riepilogo + punti albero) → Dashboard performance / Chatbot
+
+Schermata
+
+Componenti UI richiesti
+
+Note per il design
+
+01 · Onboarding
+
+Domande profilo (stile cognitivo, corso di laurea, obiettivi), barra avanzamento setup, illustrazione dell&apos;Albero da &apos;sbloccare&apos;
+
+Tono accogliente e motivazionale. L&apos;Albero appare come elemento teaser già nella prima schermata
+
+02 · Dashboard principale
+
+Albero della Concentrazione (grande, centrale), contatore ore concentrate, streak giornaliera, accesso rapido agli ultimi corsi, notifiche in header, navigazione principale
+
+L&apos;albero deve dominare visivamente. Progressione chiara verso lo stadio successivo
+
+03 · Gestione corsi &amp; Upload
+
+Lista corsi attivi, bottone &apos;Nuovo corso&apos;, per ogni corso: lista materiali caricati con stato elaborazione, drag &amp; drop upload, barra progresso elaborazione
+
+Design pulito, simile a un file manager. Focus sulla chiarezza dello stato di elaborazione
+
+04 · Rielaborazione contenuti
+
+Selettore fase (3 tab), selettore formato output (5+ card con icone), area anteprima contenuto rielaborato, badge livello difficoltà, bottone cambio formato, loading state
+
+Questa è la schermata più usata. Massima chiarezza. L&apos;area anteprima deve essere grande
+
+05 · Sessione di studio
+
+Timer sessione in evidenza, contenuto rielaborato attivo, indicatore stato concentrazione, bottone pausa, alert inattività come banner non invasivo
+
+Minimalista: lo studente deve concentrarsi sul contenuto. Elementi UI ridotti al minimo
+
+06 · Fine sessione
+
+Riepilogo: durata, tempo concentrato, argomenti coperti, punti guadagnati, progressione Albero con animazione crescita
+
+Momento celebrativo. L&apos;animazione dell&apos;Albero è il reward principale. Bottoni: &apos;Continua a studiare&apos; / &apos;Vai alla dashboard&apos;
+
+07 · Chatbot RAG
+
+Interfaccia chat, selettore corso attivo in alto, cronologia conversazioni in sidebar, riferimenti alle fonti nelle risposte, toggle Modalità Tutor Socratico
+
+Pulito e familiare (simile a ChatGPT/Claude). La differenza chiave: il selettore corso è prominente
+
+08 · Dashboard performance
+
+Grafici andamento per corso e argomento, lista lacune ricorrenti con indicatore colorato, storico sessioni, bottone &apos;Ripassa le lacune&apos;
+
+Data-forward. Grafici chiari, non sovraccarichi. Ogni grafico deve avere un&apos;azione collegata
+
+09 · Profilo studente
+
+Stile cognitivo identificato, radar chart argomenti, adattamenti attivi della piattaforma, impostazioni preferenze di studio
+
+Trasparente: lo studente vede esattamente come il sistema lo sta adattando
+
+10 · Gamification &amp; Albero
+
+Albero in dettaglio con tutti gli stadi visibili, punti e badge accumulati, card condivisione risultati, leaderboard (placeholder)
+
+Visivamente ricco. L&apos;albero è il protagonista assoluto di questa schermata
+
+07  RIFERIMENTO VISIVO — INDICAZIONI PER CLAUDE DESIGN
+
+Tipo di output richiesto
+
+WIREFRAME LO-FI — struttura, layout, gerarchia e navigazione. NON high-fidelity: niente colori finali, niente immagini reali, tipografia placeholder. Eccezione: l&apos;Albero della Concentrazione può avere una rappresentazione grafica abbozzata per comunicare il concept visivo al cliente.
+
+Tono e stile (da tradurre in wireframe)
+
+Motivazionale e incoraggiante
+
+L&apos;interfaccia deve trasmettere progressione e crescita, non ansia da performance
+
+Clean e focalizzato
+
+Nessun elemento decorativo superfluo durante lo studio. La UI sparisce e lascia spazio al contenuto
+
+Gamificato ma non infantile
+
+Il sistema di ricompense deve sembrare maturo, non un gioco per bambini
+
+Device
+
+Web app desktop-first. Responsive per mobile sufficiente per notifiche e gamification
+
+Gerarchia visiva delle feature
+
+Nella homepage/dashboard: Albero della Concentrazione &gt; Accesso rapido al corso attivo &gt; Notifiche &gt; Performance snapshot
+
+Nella schermata studio: Contenuto rielaborato &gt; Selettore fase/formato &gt; Timer sessione &gt; Chatbot (accesso laterale)
+
+Navigazione principale suggerita
+
+Voce menu
+
+Corrisponde a
+
+Icona suggerita
+
+Home
+
+Dashboard con Albero
+
+🌳 Albero / casa
+
+Studia
+
+Rielaborazione + Sessione
+
+📖 Libro aperto
+
+I miei corsi
+
+Upload + gestione materiali
+
+📁 Cartella
+
+Tutor AI
+
+Chatbot RAG
+
+💬 Fumetto
+
+Performance
+
+Dashboard metriche + profilo
+
+📊 Grafico
+
+Leggende
+
+Gamification + Albero dettaglio
+
+🏆 Trofeo
+
+08  RESTRIZIONI E DOMANDE APERTE
+
+Tipo restrizione
+
+Dettaglio
+
+Impatto sul design
+
+Privacy / GDPR
+
+Dati studenti non escono dall&apos;EU. Dati didattici potenzialmente sensibili
+
+Nessun elemento che suggerisca condivisione dati non consensuale
+
+Budget API
+
+Preferenza per API esterne (OpenAI, Anthropic, Gemini) vs infrastruttura proprietaria
+
+La UI deve mostrare chiaramente &apos;quale AI sta usando&apos; per trasparenza
+
+Accessibilità
+
+Target: studenti con potenziale stress accademico elevato
+
+Evitare dark pattern motivazionali aggressivi. Pause suggerite, non imposte
+
+Scope V1
+
+Il prototipo serve per validazione con il cliente, non per sviluppo immediato
+
+Wireframe lo-fi sufficiente. No pixel-perfect
+
+Domande aperte da risolvere prima dell&apos;hi-fi
+
+#
+
+Domanda
+
+Responsabile
+
+Stato
+
+1
+
+L&apos;Albero della Concentrazione ha stadi definiti? Quante ore per ogni stadio di crescita?
+
+Team di progetto
+
+☐ Aperta
+
+2
+
+Il docente ha una sezione dedicata nel wireframe V1 o è out of scope?
+
+Cliente
+
+☐ Aperta
+
+3
+
+Il nome &apos;Legends&apos; ha un&apos;identità visiva già definita (logo, palette colori)?
+
+Cliente
+
+☐ Aperta
+
+4
+
+La modalità &apos;Tutor Socratico&apos; del chatbot è una feature V1 o V2?
+
+Team di progetto
+
+☐ Aperta
+
+5
+
+La leaderboard è anonima, tra amici, o entrambe le opzioni?
+
+Cliente
+
+☐ Aperta
+
+09  PROMPT PRONTO PER CLAUDE DESIGN
+
+Copia il testo seguente e incollalo direttamente in Claude Design. Sostituisci i campi in [parentesi] se hai già le risposte alle domande aperte.
+
+PROMPT PER CLAUDE DESIGN
+
+Crea un wireframe lo-fi per Legends, una web app di studio adattivo per studenti universitari di ingegneria. Il wireframe deve mostrare le 10 schermate principali descritte di seguito, con navigazione collegata tra di loro.
+
+IDENTITÀ DEL PRODOTTO
+
+Nome: Legends. Tono: motivazionale, clean, gamificato ma maturo. Target: studenti universitari (18-26 anni). Platform: web app desktop-first, responsive mobile.
+
+ELEMENTO VISIVO CHIAVE — L&apos;ALBERO DELLA CONCENTRAZIONE
+
+L&apos;Albero della Concentrazione è il cuore dell&apos;interfaccia. Cresce proporzionalmente al tempo di studio concentrato accumulato. Deve apparire come elemento centrale nella Dashboard e avere una schermata dedicata nella sezione Gamification. Nel wireframe, abbozzalo graficamente (anche in grigio/bianco) per comunicare il concept visivo al cliente. Mostra almeno 3 stadi di crescita (seme → alberello → albero maturo).
+
+TRE FASI DELL&apos;APPRENDIMENTO (usate ovunque nell&apos;interfaccia)
+
+1. Esplorazione Iniziale → riassunti, mappe concettuali, overview  |  2. Studio Attivo → schemi, esercizi, flashcard  |  3. Preparazione Esame → simulazioni, domande aperte, ripasso lacune
+
+SCHERMATE RICHIESTE
+
+01 · Onboarding: 3-5 schermate di setup profilo iniziale (stile cognitivo, corso di laurea, obiettivi). Mostra l&apos;Albero come elemento da &apos;sbloccare&apos;.
+
+02 · Dashboard principale: Albero della Concentrazione (grande, centrale) + contatore ore concentrate + streak + accesso rapido corsi + notifiche in header + menu principale con 6 voci (Home, Studia, I miei corsi, Tutor AI, Performance, Leggende).
+
+03 · Gestione corsi &amp; Upload (Modulo RAG): lista corsi + upload drag &amp; drop + stato elaborazione documenti (In elaborazione / Pronto / Errore) + barra progresso + riepilogo documenti indicizzati.
+
+04 · Rielaborazione contenuti [SCHERMATA CORE]: selettore fase (3 tab: Esplorazione / Studio Attivo / Preparazione Esame) + selettore formato output come card con icone (Riassunto, Schema, Mappa concettuale, Quiz, Simulazione esame) + area anteprima contenuto (&gt;50% schermata) + badge difficoltà adattata al profilo + loading state AI.
+
+05 · Sessione di studio: timer sessione in evidenza + contenuto rielaborato attivo + indicatore stato concentrazione (verde/arancione) + bottone pausa + banner alert inattività (non invasivo).
+
+06 · Fine sessione (riepilogo): durata totale + tempo concentrato + argomenti coperti + punti guadagnati + animazione crescita Albero + bottoni &apos;Continua a studiare&apos; / &apos;Vai alla dashboard&apos;.
+
+07 · Chatbot RAG (Tutor AI): interfaccia chat (bolla utente destra, AI sinistra) + selettore corso attivo in header + riferimenti alle fonti nelle risposte + toggle &apos;Modalità Tutor Socratico&apos; + cronologia conversazioni in sidebar.
+
+08 · Dashboard performance: grafici andamento per corso/argomento + lista lacune ricorrenti con indicatore verde/giallo/rosso + storico sessioni + bottone &apos;Ripassa le lacune&apos;.
+
+09 · Profilo studente: stile cognitivo identificato + radar chart argomenti + sezione &apos;Adattamenti attivi&apos; (es: difficoltà aumentata su X, formato visivo attivato) + impostazioni studio.
+
+10 · Gamification — Leggende: Albero in dettaglio con tutti gli stadi di crescita + punti e badge accumulati + card condivisione risultati + leaderboard placeholder.
+
+INDICAZIONI GENERALI
+
+• Wireframe lo-fi: niente colori finali, tipografia placeholder. Solo struttura e gerarchia.  • Eccezione: l&apos;Albero può essere abbozzato graficamente.  • Mostra il flusso di navigazione tra le schermate con frecce o connessioni.  • La schermata di Rielaborazione contenuti è la più importante: dagli la maggiore attenzione.  • Il timer di sessione deve essere sempre visibile durante lo studio (non solo nella schermata 05).  • L&apos;interfaccia durante la sessione (05) deve essere minimalista: lo studente deve concentrarsi sul contenuto.
+
+Legends · Project Brief per Claude Design · V1.0 · Beam Me Up AI &amp; Automation Consultancy
