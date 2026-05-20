@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagramma Costo/Valore Relativo — Feature Piattaforma AI</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f9f8f5;
+      color: #1a1a18;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      border: 0.5px solid #d3d1c7;
+      padding: 2rem 2.5rem 2.5rem;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 500;
+      color: #1a1a18;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #888780;
+      margin-bottom: 1.5rem;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 1rem;
+      font-size: 12px;
+      color: #5f5e5a;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-line {
+      width: 22px;
+      height: 2px;
+      flex-shrink: 0;
+    }
+
+    .legend-dashed {
+      width: 22px;
+      height: 0;
+      border-top: 2px dashed #b4b2a9;
+      flex-shrink: 0;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      width: 100%;
+      height: 420px;
+      margin-bottom: 2rem;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      table-layout: fixed;
+    }
+
+    col.col-num   { width: 36px; }
+    col.col-name  { width: auto; }
+    col.col-cost  { width: 80px; }
+    col.col-pct   { width: 74px; }
+    col.col-stato { width: 108px; }
+
+    thead tr {
+      border-bottom: 1px solid #d3d1c7;
+    }
+
+    th {
+      padding: 8px 6px;
+      font-weight: 500;
+      font-size: 11px;
+      color: #888780;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    th:first-child { text-align: center; }
+    th:nth-child(2) { text-align: left; }
+    th:last-child { text-align: center; }
+
+    tbody tr {
+      border-bottom: 0.5px solid #e8e7e2;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+
+    td {
+      padding: 9px 6px;
+      color: #1a1a18;
+      text-align: right;
+      vertical-align: middle;
+    }
+
+    td:first-child {
+      text-align: center;
+      font-weight: 500;
+      color: #5f5e5a;
+    }
+
+    td:nth-child(2) {
+      text-align: left;
+      color: #1a1a18;
+    }
+
+    td:last-child { text-align: center; }
+
+    td.muted { color: #888780; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .badge-target        { background: #e1f5ee; color: #0f6e56; }
+    .badge-reduce        { background: #fcebeb; color: #a32d2d; }
+    .badge-enhance       { background: #e6f1fb; color: #185fa5; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Diagramma Costo relativo / Valore relativo</h1>
+    <p class="subtitle">Feature della piattaforma AI di studio — Budget totale: €350.000 — Analisi del valore (Value Engineering)</p>
+
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot" style="background:#e24b4a;"></span>Reduce cost — sopra la zona target</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#1d9e75;"></span>Zona target — allocazione ottimale</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#378add;"></span>Enhance value — sotto la zona target</span>
+      <span class="legend-item"><span class="legend-line" style="background:#2c2c2a;"></span>Bisettrice (costo/valore = 1)</span>
+      <span class="legend-item"><span class="legend-dashed"></span>Zona target ±28%</span>
+    </div>
+
+    <div class="chart-wrapper">
+      <canvas id="scatterChart" role="img" aria-label="Scatter chart costo relativo vs valore relativo per le 8 feature della piattaforma AI"></canvas>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <colgroup>
+          <col class="col-num">
+          <col class="col-name">
+          <col class="col-cost">
+          <col class="col-pct">
+          <col class="col-pct">
+          <col class="col-pct">
+          <col class="col-pct">
+          <col class="col-stato">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Feature</th>
+            <th>Costo (€)</th>
+            <th>Costo rel.</th>
+            <th>Score QFD</th>
+            <th>Valore rel.</th>
+            <th>Ratio C/V</th>
+            <th>Stato</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <p style="margin-top:1.5rem; font-size:11px; color:#b4b2a9;">
+      Valore relativo = score normalizzato QFD / somma totale score. &nbsp;Costo relativo = costo feature / costo totale. &nbsp;Zona target: tolleranza ±28% dalla bisettrice.
+    </p>
+  </div>
+
+  <script>
+    const features = [
+      { n:1, name:"Sistema di rielaborazione",                    cost:60000, costRel:21.7, scoreQFD:3.32, valRel:19.6, cv:1.11, stato:"Target" },
+      { n:2, name:"AI Chatbot tutor",                             cost:55000, costRel:19.9, scoreQFD:1.68, valRel:9.9,  cv:2.01, stato:"Reduce cost" },
+      { n:3, name:"Sistema di profilazione dello studente",       cost:42500, costRel:15.4, scoreQFD:2.57, valRel:15.2, cv:1.01, stato:"Target" },
+      { n:4, name:"Modulo RAG",                                   cost:42500, costRel:15.4, scoreQFD:1.88, valRel:11.1, cv:1.39, stato:"Reduce cost" },
+      { n:5, name:"Sistema di monitoraggio delle performance",    cost:26000, costRel:9.4,  scoreQFD:1.85, valRel:10.9, cv:0.86, stato:"Target" },
+      { n:6, name:"Sistema di ricompense gamification",           cost:21500, costRel:7.8,  scoreQFD:1.76, valRel:10.4, cv:0.75, stato:"Target" },
+      { n:7, name:"Sistema di monitoraggio della sessione",       cost:18500, costRel:6.7,  scoreQFD:2.33, valRel:13.8, cv:0.49, stato:"Enhance value" },
+      { n:8, name:"Sistema di notificazione",                     cost:10000, costRel:3.6,  scoreQFD:1.53, valRel:9.0,  cv:0.40, stato:"Enhance value" }
+    ];
+
+    const colorMap   = { "Target":"#1d9e75", "Reduce cost":"#e24b4a", "Enhance value":"#378add" };
+    const badgeClass = { "Target":"badge-target", "Reduce cost":"badge-reduce", "Enhance value":"badge-enhance" };
+
+    const scatterData = features.map(f => ({ x: f.valRel, y: f.costRel, label: f.n, name: f.name, stato: f.stato }));
+
+    const max = 32;
+    const line       = [{ x:0, y:0 }, { x:max, y:max }];
+    const upperBand  = [{ x:0, y:0 }, { x:max, y:max * 1.28 }];
+    const lowerBand  = [{ x:0, y:0 }, { x:max, y:max * 0.72 }];
+
+    const labelPlugin = {
+      id: 'pointLabels',
+      afterDatasetsDraw(chart) {
+        const ctx = chart.ctx;
+        const meta = chart.getDatasetMeta(0);
+        meta.data.forEach((pt, i) => {
+          ctx.save();
+          ctx.font = '500 11px -apple-system, BlinkMacSystemFont, sans-serif';
+          ctx.fillStyle = '#fff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(scatterData[i].label, pt.x, pt.y);
+          ctx.restore();
+        });
+      }
+    };
+
+    new Chart(document.getElementById('scatterChart'), {
+      type: 'scatter',
+      plugins: [labelPlugin],
+      data: {
+        datasets: [
+          {
+            label: 'Feature',
+            data: scatterData,
+            pointRadius: 14,
+            pointHoverRadius: 16,
+            pointBackgroundColor: scatterData.map(d => colorMap[d.stato]),
+            pointBorderColor:     scatterData.map(d => colorMap[d.stato]),
+            pointBorderWidth: 0,
+          },
+          {
+            label: 'Bisettrice',
+            data: line,
+            type: 'line',
+            borderColor: '#2c2c2a',
+            borderWidth: 1.5,
+            pointRadius: 0,
+            tension: 0,
+          },
+          {
+            label: 'Banda sup.',
+            data: upperBand,
+            type: 'line',
+            borderColor: '#b4b2a9',
+            borderWidth: 1,
+            borderDash: [5, 4],
+            pointRadius: 0,
+            tension: 0,
+          },
+          {
+            label: 'Banda inf.',
+            data: lowerBand,
+            type: 'line',
+            borderColor: '#b4b2a9',
+            borderWidth: 1,
+            borderDash: [5, 4],
+            pointRadius: 0,
+            tension: 0,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label(ctx) {
+                if (ctx.datasetIndex !== 0) return null;
+                const d = ctx.raw;
+                return [
+                  d.label + '. ' + d.name,
+                  'Valore rel.: ' + d.x + '%',
+                  'Costo rel.: ' + d.y + '%',
+                  'Stato: ' + d.stato
+                ];
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: 'Valore relativo (%)', font: { size: 12 }, color: '#888780' },
+            min: 0, max: max,
+            ticks: { callback: v => v + '%', font: { size: 11 }, color: '#888780' },
+            grid: { color: 'rgba(136,135,128,0.15)' }
+          },
+          y: {
+            title: { display: true, text: 'Costo relativo (%)', font: { size: 12 }, color: '#888780' },
+            min: 0, max: max,
+            ticks: { callback: v => v + '%', font: { size: 11 }, color: '#888780' },
+            grid: { color: 'rgba(136,135,128,0.15)' }
+          }
+        }
+      }
+    });
+
+    const tbody = document.getElementById('tableBody');
+    features.forEach(f => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${f.n}</td>
+        <td>${f.name}</td>
+        <td>€${f.cost.toLocaleString('it-IT')}</td>
+        <td class="muted">${f.costRel}%</td>
+        <td class="muted">${f.scoreQFD}</td>
+        <td class="muted">${f.valRel}%</td>
+        <td class="muted">${f.cv}</td>
+        <td><span class="badge ${badgeClass[f.stato]}">${f.stato}</span></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  </script>
+</body>
+</html>
