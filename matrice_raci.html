@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matrice RACI &mdash; Progetto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Spline+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F1ECE2; --paper-2:#FBF9F3; --card:#FFFFFF;
+    --ink:#211F1A; --ink-soft:#5C584D; --ink-faint:#94907F;
+    --line:#DBD5C5; --line-soft:#E8E3D6;
+    --accent:#BE4A22;
+    --r:#2D7A57; --r-bg:#E4EFE8;
+    --a:#BE4A22; --a-bg:#F6E3D7;
+    --c:#345E8C; --c-bg:#E0E8F1;
+    --i:#8E8B79; --i-bg:#E9E6DA;
+    --warn:#B3261E; --warn-bg:#F7E1DF;
+    --shadow:0 1px 2px rgba(33,31,26,.04),0 8px 24px rgba(33,31,26,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Spline Sans',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(var(--line) 0.6px,transparent 0.6px);
+    background-size:22px 22px;
+    line-height:1.5;
+  }
+  .wrap{max-width:1280px;margin:0 auto;padding:38px 26px 90px;}
+
+  /* ---------- header ---------- */
+  header{position:relative;margin-bottom:30px;}
+  .kicker{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--accent);margin-bottom:10px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .kicker::after{content:"";flex:1;height:1px;background:var(--line);}
+  h1{
+    font-family:'Fraunces',serif;font-weight:500;font-size:clamp(34px,5vw,58px);
+    letter-spacing:-.02em;line-height:1.02;
+  }
+  h1 em{font-style:italic;color:var(--accent);}
+  .sub{color:var(--ink-soft);max-width:60ch;margin-top:10px;font-size:15px;}
+
+  /* ---------- stat strip ---------- */
+  .stats{display:flex;flex-wrap:wrap;gap:14px;margin-top:24px;}
+  .stat{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:14px 18px;min-width:138px;box-shadow:var(--shadow);
+  }
+  .stat .num{font-family:'Fraunces',serif;font-size:30px;font-weight:500;line-height:1;}
+  .stat .lbl{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);margin-top:6px;}
+  .stat.alert .num{color:var(--warn);}
+  .stat.ok .num{color:var(--r);}
+
+  /* ---------- person cards ---------- */
+  .people{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:14px;}
+  .pcard{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:14px 16px;box-shadow:var(--shadow);
+  }
+  .pcard .pname{font-weight:600;font-size:15px;}
+  .pcard .pfull{font-size:11px;color:var(--ink-faint);margin-top:1px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .pcard .pcounts{display:flex;gap:6px;margin-top:11px;}
+  .mini{
+    flex:1;text-align:center;border-radius:8px;padding:5px 0;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;
+  }
+  .mini small{display:block;font-size:9px;font-weight:600;opacity:.7;letter-spacing:.04em;}
+  .mini.R{background:var(--r-bg);color:var(--r);}
+  .mini.A{background:var(--a-bg);color:var(--a);}
+  .mini.C{background:var(--c-bg);color:var(--c);}
+  .mini.I{background:var(--i-bg);color:var(--i);}
+
+  /* ---------- legend ---------- */
+  .legend{
+    display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:24px;
+    background:var(--paper-2);border:1px dashed var(--line);border-radius:14px;
+    padding:15px 20px;
+  }
+  .leg{display:flex;align-items:flex-start;gap:10px;font-size:13px;}
+  .badge{
+    width:26px;height:26px;border-radius:7px;flex:none;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;
+  }
+  .badge.R{background:var(--r-bg);color:var(--r);}
+  .badge.A{background:var(--a-bg);color:var(--a);}
+  .badge.C{background:var(--c-bg);color:var(--c);}
+  .badge.I{background:var(--i-bg);color:var(--i);}
+  .leg b{font-weight:600;}
+  .leg span{color:var(--ink-soft);}
+
+  /* ---------- toolbar ---------- */
+  .toolbar{
+    display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+    margin-top:24px;padding:14px 16px;
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);position:sticky;top:0;z-index:40;
+  }
+  .search{position:relative;flex:1;min-width:200px;}
+  .search input{
+    width:100%;padding:9px 12px 9px 34px;border:1px solid var(--line);
+    border-radius:9px;font-family:inherit;font-size:14px;background:var(--paper-2);
+    color:var(--ink);
+  }
+  .search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:#fff;}
+  .search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);
+    width:15px;height:15px;stroke:var(--ink-faint);}
+  select,.btn{
+    font-family:inherit;font-size:13px;padding:9px 13px;border-radius:9px;
+    border:1px solid var(--line);background:var(--paper-2);color:var(--ink);
+    cursor:pointer;font-weight:500;
+  }
+  select:focus{outline:2px solid var(--accent);}
+  .btn:hover{background:#fff;border-color:var(--ink-faint);}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .btn.primary:hover{background:#a83d18;}
+  .btn svg{width:14px;height:14px;vertical-align:-2px;margin-right:5px;}
+
+  /* ---------- matrix ---------- */
+  .stage{
+    margin-top:22px;background:var(--card);border:1px solid var(--line);
+    border-radius:16px;box-shadow:var(--shadow);overflow:hidden;
+    opacity:0;transform:translateY(12px);
+    animation:rise .5s cubic-bezier(.2,.7,.2,1) forwards;
+  }
+  @keyframes rise{to{opacity:1;transform:none;}}
+  .stage-head{
+    display:flex;align-items:center;gap:13px;cursor:pointer;
+    padding:15px 20px;user-select:none;background:var(--paper-2);
+    border-bottom:1px solid var(--line-soft);
+  }
+  .stage-head:hover{background:#F5F1E7;}
+  .chev{width:18px;height:18px;flex:none;transition:transform .25s;stroke:var(--ink-soft);}
+  .stage.collapsed .chev{transform:rotate(-90deg);}
+  .stage.collapsed .stage-body{display:none;}
+  .stage-num{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent);
+    border:1px solid var(--line);border-radius:6px;padding:2px 7px;background:#fff;
+  }
+  .stage-title{font-family:'Fraunces',serif;font-size:19px;font-weight:500;flex:1;letter-spacing:-.01em;}
+  .stage-meta{display:flex;gap:7px;align-items:center;}
+  .pill{
+    font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600;
+    background:var(--i-bg);color:var(--ink-soft);
+  }
+  .pill.bad{background:var(--warn-bg);color:var(--warn);}
+
+  table{width:100%;border-collapse:collapse;}
+  thead th{
+    position:sticky;top:62px;z-index:20;background:var(--paper-2);
+    font-size:11px;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--ink-faint);font-weight:600;text-align:center;
+    padding:11px 8px;border-bottom:1px solid var(--line);
+  }
+  thead th.act-col{text-align:left;padding-left:20px;}
+  thead th .th-name{font-size:13px;color:var(--ink);text-transform:none;letter-spacing:0;
+    font-weight:600;font-family:'Spline Sans';}
+  thead th .th-full{font-size:9.5px;color:var(--ink-faint);font-weight:500;}
+
+  tbody tr{border-bottom:1px solid var(--line-soft);transition:background .12s;}
+  tbody tr:last-child{border-bottom:none;}
+  tbody tr:hover{background:#FAF8F1;}
+  tbody tr.flagged{background:linear-gradient(90deg,var(--warn-bg) 0 3px,transparent 3px);}
+  tbody tr.flagged:hover{background:linear-gradient(90deg,var(--warn) 0 3px,#FAF8F1 3px);}
+
+  td.act{
+    padding:11px 16px 11px 20px;font-size:14px;line-height:1.4;
+    max-width:520px;
+  }
+  td.act .a-row{display:flex;align-items:baseline;gap:9px;}
+  td.act .idx{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-faint);flex:none;}
+  td.act .a-meta{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap;}
+  .tag{font-size:10px;padding:1px 7px;border-radius:5px;letter-spacing:.03em;font-weight:600;}
+  .tag.st{background:var(--i-bg);color:var(--ink-soft);}
+  .tag.st.done{background:var(--r-bg);color:var(--r);}
+  .tag.st.doing{background:var(--c-bg);color:var(--c);}
+  .tag.st.todo{background:#F0E7D6;color:#9a7b2e;}
+  .tag.pr{border:1px solid var(--line);color:var(--ink-faint);}
+  .warnflag{font-size:10.5px;color:var(--warn);font-weight:600;display:inline-flex;
+    align-items:center;gap:3px;margin-top:5px;}
+
+  td.cell{text-align:center;padding:7px 8px;width:13%;}
+  .role{
+    width:38px;height:38px;border-radius:9px;border:1.5px dashed var(--line);
+    background:transparent;cursor:pointer;margin:0 auto;
+    font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:16px;
+    display:flex;align-items:center;justify-content:center;color:var(--ink-faint);
+    transition:transform .12s,background .15s,color .15s,border-color .15s;
+  }
+  .role:hover{transform:scale(1.12);border-color:var(--ink-faint);}
+  .role:active{transform:scale(.94);}
+  .role.set{border-style:solid;}
+  .role.R{background:var(--r-bg);color:var(--r);border-color:var(--r);}
+  .role.A{background:var(--a-bg);color:var(--a);border-color:var(--a);}
+  .role.C{background:var(--c-bg);color:var(--c);border-color:var(--c);}
+  .role.I{background:var(--i-bg);color:var(--i);border-color:var(--i);}
+  .role .dot{width:5px;height:5px;border-radius:50%;background:var(--line);}
+
+  .col-hl{background:#FAF7EF;}
+  thead th.col-hl{background:#F3EFE3;}
+
+  .empty-note{padding:26px;text-align:center;color:var(--ink-faint);font-size:14px;}
+  footer{margin-top:40px;text-align:center;color:var(--ink-faint);font-size:12px;
+    font-family:'IBM Plex Mono',monospace;letter-spacing:.04em;}
+  .hint{font-size:12px;color:var(--ink-faint);margin-top:8px;display:flex;
+    align-items:center;gap:6px;}
+  .hint svg{width:13px;height:13px;stroke:var(--accent);}
+
+  @media(max-width:760px){
+    .people{grid-template-columns:repeat(2,1fr);}
+    .wrap{padding:26px 14px 70px;}
+    td.act{font-size:13px;}
+    .role{width:34px;height:34px;font-size:14px;}
+    thead th{top:118px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Project Management &middot; Assegnazione Responsabilit&agrave;</div>
+    <h1>Matrice <em>RACI</em></h1>
+    <p class="sub">Incrocio tra attivit&agrave; e membri del team. Ogni cella indica il ruolo:
+       <b>R</b>esponsible, <b>A</b>ccountable, <b>C</b>onsulted, <b>I</b>nformed.
+       Clicca una cella per assegnare o cambiare un ruolo.</p>
+
+    <div class="stats">
+      <div class="stat"><div class="num" id="s-tot">0</div><div class="lbl">Attivit&agrave; totali</div></div>
+      <div class="stat"><div class="num" id="s-stages">0</div><div class="lbl">Fasi del progetto</div></div>
+      <div class="stat ok"   id="st-ok"><div class="num" id="s-ok">0</div><div class="lbl">Attivit&agrave; valide</div></div>
+      <div class="stat alert" id="st-bad"><div class="num" id="s-bad">0</div><div class="lbl">Da correggere</div></div>
+    </div>
+
+    <div class="people" id="people"></div>
+
+    <div class="legend">
+      <div class="leg"><div class="badge R">R</div><div><b>Responsible</b><br><span>Esegue concretamente il lavoro.</span></div></div>
+      <div class="leg"><div class="badge A">A</div><div><b>Accountable</b><br><span>Approva e risponde del risultato &mdash; una sola per attivit&agrave;.</span></div></div>
+      <div class="leg"><div class="badge C">C</div><div><b>Consulted</b><br><span>Viene consultato, fornisce input.</span></div></div>
+      <div class="leg"><div class="badge I">I</div><div><b>Informed</b><br><span>Viene tenuto informato sui progressi.</span></div></div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="search" placeholder="Cerca attivit&agrave;...">
+    </div>
+    <select id="stageFilter"><option value="">Tutte le fasi</option></select>
+    <select id="issueFilter">
+      <option value="">Tutte le attivit&agrave;</option>
+      <option value="bad">Solo da correggere</option>
+    </select>
+    <button class="btn" id="expandAll">Espandi tutto</button>
+    <button class="btn" id="collapseAll">Comprimi tutto</button>
+    <button class="btn primary" id="exportBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+      Esporta CSV
+    </button>
+  </div>
+
+  <div class="hint">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    Sequenza al click di una cella: vuoto &rarr; R &rarr; A &rarr; C &rarr; I &rarr; vuoto. Le righe con problemi RACI sono evidenziate in rosso.
+  </div>
+
+  <div id="matrix"></div>
+  <div class="empty-note" id="noResults" style="display:none">Nessuna attivit&agrave; corrisponde ai filtri.</div>
+
+  <footer>Matrice RACI &mdash; le modifiche restano in questa sessione &middot; usa &ldquo;Esporta CSV&rdquo; per salvarle</footer>
+</div>
+
+<script>
+const DATA   = [{"stage": "Project Management", "activity": "Sistematizzazione su Notion", "status": "Done", "priority": "Alta", "roles": ["A", "I", "I", "I"]}, {"stage": "Project Management", "activity": "Definizione dello Scopo ad alto livello", "status": "Done", "priority": "Media", "roles": ["R", "A", "R", "R"]}, {"stage": "Project Management", "activity": "Progettazione dettagliata della metodologia", "status": "Done", "priority": "Alta", "roles": ["A", "I", "I", "I"]}, {"stage": "Project Management", "activity": "Gestione dell'Informazione e Documentazione (Templates dei Documenti Tecnici)", "status": "Doing", "priority": "Alta", "roles": ["A", "I", "I", "I"]}, {"stage": "Project Management", "activity": "Lezioni Apprese (Lesson Learned)", "status": "Doing", "priority": "Alta", "roles": ["A", "I", "I", "I"]}, {"stage": "Project Management", "activity": "Gestione delle Interazioni (Riunioni)", "status": "Doing", "priority": "Alta", "roles": ["A", "I", "I", "I"]}, {"stage": "Project Management", "activity": "Monitoraggio con KPI del progetto", "status": "To do", "priority": "Alta", "roles": ["A", "I", "I", "I"]}, {"stage": "Project Management", "activity": "Estructurar la presentación para la plenaria", "status": "Doing", "priority": "Alta", "roles": ["A", "I", "I", "I"]}, {"stage": "Fattibilità", "activity": "Pianificare le attivitá della Fattibilita su Lucidchart e Notion", "status": "Done", "priority": "Alta", "roles": ["R", "I", "A", "I"]}, {"stage": "Fattibilità", "activity": "Fare l'analisi PESTEL", "status": "Done", "priority": "Alta", "roles": ["R", "I", "I", "A"]}, {"stage": "Fattibilità", "activity": "Controllare l'analisi PESTEL", "status": "Done", "priority": "Alta", "roles": ["I", "A", "R", "I"]}, {"stage": "Fattibilità", "activity": "Fare analisi google trends ed identificare segnali deboli", "status": "Done", "priority": "Alta", "roles": ["R", "A", "I", "I"]}, {"stage": "Fattibilità", "activity": "Fare Benchmarking Competitivo", "status": "Done", "priority": "Alta", "roles": ["I", "I", "A", "R"]}, {"stage": "Fattibilità", "activity": "Definire  la query di Scopus + Precision", "status": "Done", "priority": "Alta", "roles": ["R", "R", "A", "R"]}, {"stage": "Fattibilità", "activity": "Controllare  la query di Scopus", "status": "Done", "priority": "Alta", "roles": ["R", "A", "R", "R"]}, {"stage": "Fattibilità", "activity": "Definire la query di Scopus versione 2", "status": "Done", "priority": "Alta", "roles": ["R", "R", "A", "R"]}, {"stage": "Fattibilità", "activity": "Scaricare il dataset", "status": "Done", "priority": "Alta", "roles": ["R", "A", "R", "R"]}, {"stage": "Fattibilità", "activity": "Analizzare  il dataset con NLP", "status": "Done", "priority": "Alta", "roles": ["R", "A", "I", "R"]}, {"stage": "Fattibilità", "activity": "Mappare la maturità tecnologica tramite la curve di Schumpeter", "status": "Done", "priority": "Alta", "roles": ["I", "I", "A", "I"]}, {"stage": "Fattibilità", "activity": "Fare la sintesi dell'analisi del presente", "status": "Done", "priority": "Alta", "roles": ["I", "R", "A", "I"]}, {"stage": "Fattibilità", "activity": "Controllare  la sintesi del analisi del presente", "status": "Done", "priority": "Alta", "roles": ["R", "I", "I", "A"]}, {"stage": "Fattibilità", "activity": "Tradurre i bisogni del cliente nei requisiti", "status": "Done", "priority": "Alta", "roles": ["R", "A", "R", "R"]}, {"stage": "Fattibilità", "activity": "Controllare  i requisiti", "status": "Done", "priority": "Alta", "roles": ["R", "R", "A", "R"]}, {"stage": "Fattibilità", "activity": "Prioritizzare dei Requisiti con la tecnica MoSCoW", "status": "Done", "priority": "Alta", "roles": ["R", "A", "R", "R"]}, {"stage": "Fattibilità", "activity": "Fare  Oceano Blu", "status": "Done", "priority": "Alta", "roles": ["I", "A", "I", "I"]}, {"stage": "Fattibilità", "activity": "Fare  SCAMPER", "status": "Done", "priority": "Alta", "roles": ["A", "I", "I", "I"]}, {"stage": "Fattibilità", "activity": "Concettualizzare  3 soluzioni ortogonali", "status": "Done", "priority": "Alta", "roles": ["R", "R", "A", "R"]}, {"stage": "Fattibilità", "activity": "Controllare  le 3 soluzione ortogonali", "status": "Done", "priority": "Alta", "roles": ["R", "R", "A", "R"]}, {"stage": "Fattibilità", "activity": "Fare il diagramma di flusso per ogni soluzione ortogonale", "status": "Done", "priority": "Alta", "roles": ["R", "A", "R", "R"]}, {"stage": "Fattibilità", "activity": "Fare  il documento di Decisione Strategica della soluzione ortogonale", "status": "To do", "priority": "Alta", "roles": ["R", "R", "A", "R"]}, {"stage": "Fattibilità", "activity": "Fare il report", "status": "To do", "priority": "Alta", "roles": ["R", "A", "R", "R"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Pianificare le attivitá della QFD-PM su Lucidchart e Notion", "status": "Done", "priority": "Alta", "roles": ["R", "I", "A", "I"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Definire i gradi di importanza", "status": "Done", "priority": "Alta", "roles": ["R", "A", "R", "R"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Creare la Matrice delle relazione 1", "status": "Done", "priority": "Alta", "roles": ["R", "I", "I", "A"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Controllare la Matrice delle relazioni 1", "status": "Done", "priority": "Media", "roles": ["I", "R", "A", "I"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Creare la Matrice delle relazione 2", "status": "Done", "priority": "Alta", "roles": ["I", "A", "R", "I"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Controllare la Matrice delle relazioni 2", "status": "Done", "priority": "Media", "roles": ["R", "I", "I", "A"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Fare Benchmarking Percepzione del cliente: Soddisfazione Bisogni", "status": "Done", "priority": "Media", "roles": ["I", "A", "I", "I"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Fare Benchmarking Tecnico Aziendale", "status": "Done", "priority": "Media", "roles": ["R", "I", "I", "A"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Fare Analisi del tetto", "status": "Done", "priority": "Alta", "roles": ["R", "R", "A", "R"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Stabilire le priorità tecniche:  Importanza + Relazioni", "status": "Done", "priority": "Alta", "roles": ["R", "R", "A", "R"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Definire i Target Values", "status": "Done", "priority": "Alta", "roles": ["R", "A", "R", "R"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Validare il QFD: i bisogni sono coperti? CTQ adeguato?", "status": "Done", "priority": "Media", "roles": ["R", "R", "A", "R"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Analisi Costi - Valore", "status": "Done", "priority": "Alta", "roles": ["R", "A", "R", "R"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Integrare analisi costi valore nel report", "status": "Done", "priority": "", "roles": ["A", "I", "I", "I"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Value Analysis Matrix", "status": "To do", "priority": "Bassa", "roles": ["I", "I", "I", "A"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Fare le linee guida di sviluppo", "status": "Done", "priority": "Alta", "roles": ["A", "I", "I", "I"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Controllare le linee guida di sviluppo", "status": "Done", "priority": "Media", "roles": ["A", "I", "I", "I"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Ontologia", "status": "Done", "priority": "Alta", "roles": ["A", "I", "I", "I"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Fare il report QFD", "status": "Done", "priority": "Alta", "roles": ["R", "R", "A", "R"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Sistemare Tanaka", "status": "Done", "priority": "Alta", "roles": ["R", "I", "A", "I"]}, {"stage": "QFD Concept Design e Pianificazione (PM)", "activity": "Planning Matrix", "status": "Done", "priority": "Media", "roles": ["I", "A", "I", "I"]}, {"stage": "Project Closing", "activity": "Pianificare le attivitá della Project Closing su Lucidchart e Notion", "status": "To do", "priority": "", "roles": ["A", "I", "I", "I"]}, {"stage": "Project Closing", "activity": "Consegna del Rapporto Finale", "status": "To do", "priority": "Alta", "roles": ["A", "I", "I", "I"]}, {"stage": "Project Closing", "activity": "Presentazione Finale in Plenaria", "status": "To do", "priority": "Alta", "roles": ["A", "I", "I", "I"]}, {"stage": "Desiderabilità", "activity": "Pianificare le attivitá della desiderability su Lucidchart e Notion", "status": "Done", "priority": "Alta", "roles": ["R", "I", "A", "I"]}, {"stage": "Desiderabilità", "activity": "Definire la persona buyer", "status": "Done", "priority": "Alta", "roles": ["I", "A", "I", "I"]}, {"stage": "Desiderabilità", "activity": "Definire la mappa dell’empatia", "status": "Done", "priority": "Media", "roles": ["I", "I", "I", "A"]}, {"stage": "Desiderabilità", "activity": "Definire il Costumer Journey Map", "status": "Done", "priority": "Media", "roles": ["A", "I", "I", "I"]}, {"stage": "Desiderabilità", "activity": "Elaborare il POV utente (qualitativo)", "status": "Done", "priority": "Alta", "roles": ["I", "I", "A", "I"]}, {"stage": "Desiderabilità", "activity": "Controllare ed eventualmente modificare il POV utente", "status": "Done", "priority": "Alta", "roles": ["I", "I", "A", "I"]}, {"stage": "Desiderabilità", "activity": "Definire bisogni consapevoli  tramite Google Trends (ESTO NO FUNCIONO POR LIMITES DE LA PLATAFORMA)", "status": "Done", "priority": "Alta", "roles": ["I", "I", "A", "I"]}, {"stage": "Desiderabilità", "activity": "Definire bisogni consapevoli  tramite Answer The Public", "status": "Done", "priority": "Alta", "roles": ["R", "I", "A", "I"]}, {"stage": "Desiderabilità", "activity": "Eseguire il webscraping (Precision + Recall)", "status": "Done", "priority": "Alta", "roles": ["R", "A", "I", "I"]}, {"stage": "Desiderabilità", "activity": "Definire bisogni latenti tramite Natural Language Processing (Precision + Recall)", "status": "Done", "priority": "Alta", "roles": ["R", "I", "I", "A"]}, {"stage": "Desiderabilità", "activity": "Definire bisogni latenti tramite talk Walker BRAND24", "status": "Done", "priority": "Media", "roles": ["I", "A", "I", "I"]}, {"stage": "Desiderabilità", "activity": "Elaborare lista di bisogni consapevoli e latenti", "status": "Done", "priority": "Alta", "roles": ["R", "A", "R", "R"]}, {"stage": "Desiderabilità", "activity": "Controllare ed eventualmente modificare la lista di bisogni consapevoli e latenti", "status": "Done", "priority": "Alta", "roles": ["R", "A", "R", "R"]}, {"stage": "Desiderabilità", "activity": "Raggrupare i bisogni trovati (NLP + Filtro manuale)", "status": "Done", "priority": "Alta", "roles": ["A", "I", "I", "I"]}, {"stage": "Desiderabilità", "activity": "Definire l'ipotesi dei Test (Skin in the game, XYZ)", "status": "Done", "priority": "Alta", "roles": ["R", "A", "R", "R"]}, {"stage": "Desiderabilità", "activity": "Strutturare le Interviste", "status": "Done", "priority": "Alta", "roles": ["R", "I", "I", "A"]}, {"stage": "Desiderabilità", "activity": "Strutturare il questionario", "status": "Done", "priority": "Alta", "roles": ["I", "R", "A", "I"]}, {"stage": "Desiderabilità", "activity": "Controllare la intervista e il questionario", "status": "Done", "priority": "Alta", "roles": ["R", "A", "R", "R"]}, {"stage": "Desiderabilità", "activity": "Fare la intervista", "status": "Done", "priority": "Alta", "roles": ["R", "R", "A", "R"]}, {"stage": "Desiderabilità", "activity": "Fare il questionario", "status": "Done", "priority": "Alta", "roles": ["I", "A", "R", "I"]}, {"stage": "Desiderabilità", "activity": "Elaborare il Point-of-View Statement valitato", "status": "Done", "priority": "Alta", "roles": ["R", "R", "A", "R"]}, {"stage": "Desiderabilità", "activity": "Controllare ed eventualmente modificare il Point-of-View Statement", "status": "Done", "priority": "Alta", "roles": ["R", "A", "R", "R"]}, {"stage": "Desiderabilità", "activity": "Fare il report", "status": "To do", "priority": "Alta", "roles": ["R", "R", "A", "R"]}, {"stage": "Analisi delle cause di guasto", "activity": "Pianificare le attivitá della Analisi dei Rischi e Strategia su Lucidchart e Notion", "status": "Done", "priority": "Alta", "roles": ["I", "I", "A", "I"]}, {"stage": "Analisi delle cause di guasto", "activity": "Definire i failures del Content Trasformer", "status": "Done", "priority": "Alta", "roles": ["R", "A", "I", "I"]}, {"stage": "Analisi delle cause di guasto", "activity": "Quantificare il rischio dei failures", "status": "Done", "priority": "Alta", "roles": ["I", "I", "A", "R"]}, {"stage": "Analisi delle cause di guasto", "activity": "Costruzione della Matrice del Rischio", "status": "Done", "priority": "Alta", "roles": ["I", "I", "A", "R"]}, {"stage": "Analisi delle cause di guasto", "activity": "Definire effetti e cause", "status": "To do", "priority": "Alta", "roles": ["I", "A", "R", "I"]}, {"stage": "Analisi delle cause di guasto", "activity": "FMECA", "status": "To do", "priority": "Alta", "roles": ["R", "A", "R", "R"]}, {"stage": "Analisi delle cause di guasto", "activity": "Comparazione con i requisiti minimi", "status": "To do", "priority": "Alta", "roles": ["R", "I", "I", "A"]}, {"stage": "Analisi delle cause di guasto", "activity": "Decisione", "status": "To do", "priority": "Alta", "roles": ["R", "A", "R", "R"]}, {"stage": "Analisi delle cause di guasto", "activity": "Fare il report (rischio)", "status": "Doing", "priority": "Alta", "roles": ["R", "R", "A", "R"]}, {"stage": "Analisi Finanziaria e Business Case", "activity": "Pianificare le attivitá della Analisi Finanziaria e Business Case su Lucidchart e Notion", "status": "To do", "priority": "", "roles": ["A", "I", "I", "I"]}, {"stage": "Foresight", "activity": "Completare l’analisi di Foresight", "status": "Doing", "priority": "Alta", "roles": ["I", "I", "I", "A"]}, {"stage": "Foresight", "activity": "Scrivere nel report la parte di Foresight", "status": "Doing", "priority": "Alta", "roles": ["R", "A", "R", "R"]}, {"stage": "Foresight", "activity": "Fare presentazione per Robiati", "status": "To do", "priority": "Alta", "roles": ["R", "R", "A", "R"]}, {"stage": "Concept Design", "activity": "Prompt Martini + analisi report", "status": "Doing", "priority": "Alta", "roles": ["A", "I", "I", "I"]}, {"stage": "Concept Design", "activity": "Decidere cosa proporre in ciascuna fase di studio in base allo stile cognitivo", "status": "To do", "priority": "Alta", "roles": ["R", "A", "R", "R"]}, {"stage": "Concept Design", "activity": "Sviluppare prototipo", "status": "Doing", "priority": "Alta", "roles": ["A", "I", "I", "I"]}, {"stage": "Concept Design", "activity": "Opportunità di miglioramento (varianti di prodotto)", "status": "To do", "priority": "Alta", "roles": ["R", "R", "A", "R"]}];
+const PEOPLE = ["Oscar Enrique Alvarado Saravia", "Noemi Masini", "Giulia Nicolini", "Lorenzo Pasqualetti"];
+const FIRST  = ["Oscar", "Noemi", "Giulia", "Lorenzo"];
+const CYCLE  = ['','R','A','C','I'];
+
+// build per-stage structure, preserving order
+const STAGES = [];
+const stageIndex = {};
+DATA.forEach((d,i)=>{
+  d.id=i;
+  if(!(d.stage in stageIndex)){ stageIndex[d.stage]=STAGES.length; STAGES.push({name:d.stage,items:[]}); }
+  STAGES[stageIndex[d.stage]].items.push(d);
+});
+
+const matrix = document.getElementById('matrix');
+const stageFilter = document.getElementById('stageFilter');
+
+STAGES.forEach((stg,si)=>{
+  const opt=document.createElement('option');
+  opt.value=stg.name; opt.textContent=stg.name;
+  stageFilter.appendChild(opt);
+
+  const sec=document.createElement('section');
+  sec.className='stage'; sec.dataset.stage=stg.name;
+  sec.style.animationDelay=(si*0.05)+'s';
+
+  const head=document.createElement('div');
+  head.className='stage-head';
+  head.innerHTML=`
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    <span class="stage-num">${String(si+1).padStart(2,'0')}</span>
+    <span class="stage-title">${esc(stg.name)}</span>
+    <span class="stage-meta">
+      <span class="pill">${stg.items.length} attivit&agrave;</span>
+      <span class="pill bad" data-badcount style="display:none"></span>
+    </span>`;
+  head.addEventListener('click',()=>sec.classList.toggle('collapsed'));
+
+  const body=document.createElement('div');
+  body.className='stage-body';
+
+  let ths=PEOPLE.map((p,pi)=>`<th data-col="${pi}"><div class="th-name">${FIRST[pi]}</div><div class="th-full">${esc(p)}</div></th>`).join('');
+  let rows=stg.items.map(d=>{
+    const cells=d.roles.map((r,pi)=>{
+      const cls=r?('role set '+r):'role';
+      const inner=r?r:'<span class="dot"></span>';
+      return `<td class="cell" data-col="${pi}"><div class="${cls}" data-id="${d.id}" data-p="${pi}" role="button" tabindex="0" aria-label="${FIRST[pi]}">${inner}</div></td>`;
+    }).join('');
+    return `<tr data-id="${d.id}" data-act="${esc(d.activity.toLowerCase())}">
+      <td class="act">
+        <div class="a-row"><span class="idx">${String(d.id+1).padStart(2,'0')}</span><span>${esc(d.activity)}</span></div>
+        <div class="a-meta">${statusTag(d.status)}${d.priority?`<span class="tag pr">${esc(d.priority)}</span>`:''}</div>
+        <div class="warnflag" data-warn style="display:none"></div>
+      </td>${cells}</tr>`;
+  }).join('');
+
+  body.innerHTML=`<table><thead><tr>
+      <th class="act-col">Attivit&agrave;</th>${ths}
+    </tr></thead><tbody>${rows}</tbody></table>`;
+
+  sec.appendChild(head); sec.appendChild(body);
+  matrix.appendChild(sec);
+});
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function statusTag(s){
+  const k=(s||'').toLowerCase();
+  let cls='st', txt=s||'&mdash;';
+  if(k==='done'){cls='st done';} else if(k==='doing'){cls='st doing';}
+  else if(k==='to do'){cls='st todo';}
+  return `<span class="tag ${cls}">${esc(txt)}</span>`;
+}
+
+// ---- cell click: cycle role ----
+matrix.addEventListener('click',e=>{
+  const cell=e.target.closest('.role'); if(!cell) return;
+  cycle(cell);
+});
+matrix.addEventListener('keydown',e=>{
+  if((e.key===' '||e.key==='Enter')&&e.target.classList.contains('role')){
+    e.preventDefault(); cycle(e.target);
+  }
+});
+function cycle(cell){
+  const id=+cell.dataset.id, p=+cell.dataset.p;
+  const cur=DATA[id].roles[p];
+  const next=CYCLE[(CYCLE.indexOf(cur)+1)%CYCLE.length];
+  DATA[id].roles[p]=next;
+  cell.className='role'+(next?(' set '+next):'');
+  cell.innerHTML=next?next:'<span class="dot"></span>';
+  refresh();
+}
+
+// ---- validation + stats ----
+function rowState(d){
+  const a=d.roles.filter(r=>r==='A').length;
+  if(a===0) return {ok:false,msg:'Manca una A (Accountable)'};
+  if(a>1)   return {ok:false,msg:'Troppe A &mdash; deve essercene una sola'};
+  return {ok:true};
+}
+function refresh(){
+  let bad=0;
+  const counts=PEOPLE.map(()=>({R:0,A:0,C:0,I:0}));
+  const perStageBad={};
+  DATA.forEach(d=>{
+    const st=rowState(d);
+    if(!st.ok){bad++; perStageBad[d.stage]=(perStageBad[d.stage]||0)+1;}
+    d.roles.forEach((r,pi)=>{ if(r) counts[pi][r]++; });
+    const tr=document.querySelector(`tr[data-id="${d.id}"]`);
+    if(tr){
+      tr.classList.toggle('flagged',!st.ok);
+      const w=tr.querySelector('[data-warn]');
+      if(st.ok){w.style.display='none';}
+      else{w.style.display='inline-flex';
+        w.innerHTML=`<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>${st.msg}`;
+      }
+    }
+  });
+  document.getElementById('s-tot').textContent=DATA.length;
+  document.getElementById('s-stages').textContent=STAGES.length;
+  document.getElementById('s-ok').textContent=DATA.length-bad;
+  document.getElementById('s-bad').textContent=bad;
+
+  // per-stage bad pill
+  document.querySelectorAll('.stage').forEach(sec=>{
+    const n=perStageBad[sec.dataset.stage]||0;
+    const pill=sec.querySelector('[data-badcount]');
+    if(n>0){pill.style.display='';pill.textContent=n+' da correggere';}
+    else{pill.style.display='none';}
+  });
+
+  // people cards
+  const pc=document.getElementById('people');
+  pc.innerHTML=PEOPLE.map((p,i)=>{
+    const c=counts[i];
+    return `<div class="pcard">
+      <div class="pname">${FIRST[i]}</div>
+      <div class="pfull">${esc(p)}</div>
+      <div class="pcounts">
+        <div class="mini R">${c.R}<small>R</small></div>
+        <div class="mini A">${c.A}<small>A</small></div>
+        <div class="mini C">${c.C}<small>C</small></div>
+        <div class="mini I">${c.I}<small>I</small></div>
+      </div></div>`;
+  }).join('');
+}
+refresh();
+
+// ---- filters ----
+const search=document.getElementById('search');
+const issueFilter=document.getElementById('issueFilter');
+function applyFilters(){
+  const q=search.value.trim().toLowerCase();
+  const sf=stageFilter.value;
+  const isf=issueFilter.value;
+  let anyVisible=false;
+  document.querySelectorAll('.stage').forEach(sec=>{
+    const stageMatch=!sf||sec.dataset.stage===sf;
+    let visibleRows=0;
+    sec.querySelectorAll('tbody tr').forEach(tr=>{
+      const textMatch=!q||tr.dataset.act.includes(q);
+      const issueMatch=isf!=='bad'||tr.classList.contains('flagged');
+      const show=stageMatch&&textMatch&&issueMatch;
+      tr.style.display=show?'':'none';
+      if(show)visibleRows++;
+    });
+    sec.style.display=(stageMatch&&visibleRows>0)?'':'none';
+    if(stageMatch&&visibleRows>0){
+      anyVisible=true;
+      if((q||isf)&&sec.classList.contains('collapsed'))sec.classList.remove('collapsed');
+    }
+  });
+  document.getElementById('noResults').style.display=anyVisible?'none':'block';
+}
+search.addEventListener('input',applyFilters);
+stageFilter.addEventListener('change',applyFilters);
+issueFilter.addEventListener('change',applyFilters);
+
+document.getElementById('expandAll').onclick=()=>document.querySelectorAll('.stage').forEach(s=>s.classList.remove('collapsed'));
+document.getElementById('collapseAll').onclick=()=>document.querySelectorAll('.stage').forEach(s=>s.classList.add('collapsed'));
+
+// ---- column highlight ----
+matrix.addEventListener('mouseover',e=>{
+  const c=e.target.closest('[data-col]'); if(!c)return;
+  const sec=c.closest('.stage'); const col=c.dataset.col;
+  sec.querySelectorAll(`[data-col="${col}"]`).forEach(x=>x.classList.add('col-hl'));
+});
+matrix.addEventListener('mouseout',e=>{
+  const c=e.target.closest('[data-col]'); if(!c)return;
+  c.closest('.stage').querySelectorAll('.col-hl').forEach(x=>x.classList.remove('col-hl'));
+});
+
+// ---- export CSV ----
+document.getElementById('exportBtn').onclick=()=>{
+  const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
+  let csv=['Project Stage','Activity','Status','Priority',...PEOPLE].map(q).join(',')+'\r\n';
+  DATA.forEach(d=>{
+    csv+=[d.stage,d.activity,d.status,d.priority,...d.roles].map(q).join(',')+'\r\n';
+  });
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='matrice_raci.csv'; a.click();
+  URL.revokeObjectURL(url);
+};
+</script>
+</body>
+</html>
