@@ -164,13 +164,13 @@
     <div class="legend">
       <span class="legend-item"><span class="legend-dot" style="background:#e24b4a;"></span>Reduce cost — sopra la zona target</span>
       <span class="legend-item"><span class="legend-dot" style="background:#1d9e75;"></span>Zona target — allocazione ottimale</span>
-      <span class="legend-item"><span class="legend-dot" style="background:#378add;"></span>Enhance value — sotto la zona target</span>
+
       <span class="legend-item"><span class="legend-line" style="background:#2c2c2a;"></span>Bisettrice (costo/valore = 1)</span>
       <span class="legend-item"><span class="legend-dashed"></span>Zona target ±28%</span>
     </div>
 
     <div class="chart-wrapper">
-      <canvas id="scatterChart" role="img" aria-label="Scatter chart costo relativo vs valore relativo per le 8 feature della piattaforma AI"></canvas>
+      <canvas id="scatterChart" role="img" aria-label="Scatter chart costo relativo vs valore relativo per le feature della piattaforma AI"></canvas>
     </div>
 
     <div class="table-wrapper">
@@ -221,7 +221,9 @@
     const colorMap   = { "Target":"#1d9e75", "Reduce cost":"#e24b4a", "Enhance value":"#378add" };
     const badgeClass = { "Target":"badge-target", "Reduce cost":"badge-reduce", "Enhance value":"badge-enhance" };
 
-    const scatterData = features.map(f => ({ x: f.valRel, y: f.costRel, label: f.n, name: f.name, stato: f.stato }));
+    // ── MODIFICA 1: escludi Enhance value dal grafico ──
+    const visibleFeatures = features.filter(f => f.stato !== "Enhance value");
+    const scatterData = visibleFeatures.map(f => ({ x: f.valRel, y: f.costRel, label: f.n, name: f.name, stato: f.stato }));
 
     const max = 32;
     const line       = [{ x:0, y:0 }, { x:max, y:max }];
@@ -327,18 +329,20 @@
       }
     });
 
+    // ── MODIFICA 2: in tabella, nessun nome per Enhance value ──
     const tbody = document.getElementById('tableBody');
     features.forEach(f => {
       const tr = document.createElement('tr');
+      const displayName = f.stato === "Enhance value" ? "" : f.name;
       tr.innerHTML = `
         <td>${f.n}</td>
-        <td>${f.name}</td>
+        <td>${displayName}</td>
         <td>€${f.cost.toLocaleString('it-IT')}</td>
         <td class="muted">${f.costRel}%</td>
         <td class="muted">${f.scoreQFD}</td>
         <td class="muted">${f.valRel}%</td>
         <td class="muted">${f.cv}</td>
-        <td><span class="badge ${badgeClass[f.stato]}">${f.stato}</span></td>
+        <td>${f.stato !== "Enhance value" ? `<span class="badge ${badgeClass[f.stato]}">${f.stato}</span>` : ""}</td>
       `;
       tbody.appendChild(tr);
     });
