@@ -66,13 +66,6 @@
       flex-shrink: 0;
     }
 
-    .legend-dashed {
-      width: 22px;
-      height: 0;
-      border-top: 2px dashed #b4b2a9;
-      flex-shrink: 0;
-    }
-
     .chart-wrapper {
       position: relative;
       width: 100%;
@@ -160,11 +153,11 @@
     <h1>Diagramma Costo relativo / Valore relativo</h1>
     <p class="subtitle">Feature della piattaforma AI di studio — Budget totale: €350.000 — Analisi del valore (Value Engineering)</p>
 
+    <!-- Legenda: solo Reduce cost e Zona target + bisettrice (senza linea tratteggiata) -->
     <div class="legend">
       <span class="legend-item"><span class="legend-dot" style="background:#e24b4a;"></span>Reduce cost — sopra la zona target</span>
       <span class="legend-item"><span class="legend-dot" style="background:#1d9e75;"></span>Zona target — allocazione ottimale</span>
       <span class="legend-item"><span class="legend-line" style="background:#2c2c2a;"></span>Bisettrice (costo/valore = 1)</span>
-      <span class="legend-item"><span class="legend-dashed"></span>Zona target ±28%</span>
     </div>
 
     <div class="chart-wrapper">
@@ -205,7 +198,7 @@
   </div>
 
   <script>
-    // Feature 7 e 8 spostate in "Target"
+    // Feature 7 e 8: stato aggiornato a "Target"
     const features = [
       { n:1, name:"Sistema di rielaborazione",                    cost:60000, costRel:21.7, scoreQFD:3.32, valRel:19.6, cv:1.11, stato:"Target" },
       { n:2, name:"AI Chatbot tutor",                             cost:55000, costRel:19.9, scoreQFD:1.68, valRel:9.9,  cv:2.01, stato:"Reduce cost" },
@@ -225,7 +218,7 @@
     const max = 32;
     const line      = [{ x:0, y:0 }, { x:max, y:max }];
     const upperBand = [{ x:0, y:0 }, { x:max, y:max * 1.28 }];
-    const lowerBand = [{ x:0, y:0 }, { x:max, y:max * 0.72 }];
+    // Banda inferiore rimossa
 
     const labelPlugin = {
       id: 'pointLabels',
@@ -270,16 +263,6 @@
           {
             label: 'Banda sup.',
             data: upperBand,
-            type: 'line',
-            borderColor: '#b4b2a9',
-            borderWidth: 1,
-            borderDash: [5, 4],
-            pointRadius: 0,
-            tension: 0,
-          },
-          {
-            label: 'Banda inf.',
-            data: lowerBand,
             type: 'line',
             borderColor: '#b4b2a9',
             borderWidth: 1,
