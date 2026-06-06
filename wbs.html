@@ -28,57 +28,71 @@ body{
 .hdr{
   flex:none;background:var(--paper-2);
   border-bottom:1px solid var(--line);
-  padding:12px 24px;display:flex;align-items:center;gap:18px;
+  padding:10px 20px;display:flex;align-items:center;gap:14px;
   z-index:10;box-shadow:0 4px 12px rgba(33,31,26,.05);
+  flex-wrap:wrap;
 }
-.hdr-left{flex:1;}
+.hdr-left{flex:1;min-width:200px;}
 .kicker{
   font-family:'IBM Plex Mono',monospace;font-size:10px;
   letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:3px;
 }
 .hdr h1{
-  font-family:'Fraunces',serif;font-size:22px;font-weight:500;
+  font-family:'Fraunces',serif;font-size:20px;font-weight:500;
   letter-spacing:-.01em;line-height:1;
 }
 .hdr h1 em{font-style:italic;color:var(--accent);}
-.pills{display:flex;gap:7px;flex-wrap:wrap;}
+.pills{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
 .pill{
   font-size:11px;font-family:'IBM Plex Mono',monospace;
-  padding:4px 10px;border-radius:20px;border:1px solid var(--line);
+  padding:3px 9px;border-radius:20px;border:1px solid var(--line);
   background:var(--card);color:var(--ink-soft);font-weight:600;white-space:nowrap;
 }
-.hdr-btns{display:flex;gap:7px;}
+.hdr-btns{display:flex;gap:6px;flex-wrap:wrap;}
 .btn{
-  font-family:inherit;font-size:12px;font-weight:600;
-  padding:7px 12px;border-radius:8px;border:1px solid var(--line);
-  background:var(--paper-2);color:var(--ink);cursor:pointer;
+  font-family:inherit;font-size:11px;font-weight:600;
+  padding:6px 11px;border-radius:7px;border:1px solid var(--line);
+  background:var(--paper-2);color:var(--ink);cursor:pointer;white-space:nowrap;
 }
 .btn:hover{background:var(--card);border-color:var(--ink-faint);}
 .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
 .btn.primary:hover{background:#a83d18;}
 
+/* zoom indicator */
+.zoom-badge{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  padding:3px 8px;border-radius:5px;border:1px solid var(--line);
+  background:var(--card);color:var(--ink-faint);min-width:46px;text-align:center;
+}
+
 /* ── LEGEND ── */
 .leg-bar{
-  flex:none;display:flex;align-items:center;gap:18px;
-  padding:7px 24px;background:var(--card);
+  flex:none;display:flex;align-items:center;gap:14px;
+  padding:6px 20px;background:var(--card);
   border-bottom:1px solid var(--line);
-  overflow-x:auto;font-size:12px;color:var(--ink-soft);
+  overflow-x:auto;font-size:11px;color:var(--ink-soft);
   scrollbar-width:none;
 }
 .leg-bar::-webkit-scrollbar{display:none;}
-.leg-item{display:flex;align-items:center;gap:6px;white-space:nowrap;}
-.leg-dot{width:10px;height:10px;border-radius:2px;flex:none;}
+.leg-item{display:flex;align-items:center;gap:5px;white-space:nowrap;cursor:pointer;padding:2px 4px;border-radius:4px;}
+.leg-item:hover{background:var(--paper);}
+.leg-dot{width:9px;height:9px;border-radius:2px;flex:none;}
 .leg-label-sm{font-family:'IBM Plex Mono',monospace;font-size:10px;
   text-transform:uppercase;letter-spacing:.1em;color:var(--ink-faint);margin-right:4px;}
 
 /* ── VIEWPORT ── */
 .vp{
-  flex:1;overflow:auto;position:relative;cursor:grab;
+  flex:1;overflow:hidden;position:relative;
+  cursor:grab;
 }
-.vp:active{cursor:grabbing;}
-.vp::-webkit-scrollbar{width:7px;height:7px;}
-.vp::-webkit-scrollbar-track{background:transparent;}
-.vp::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px;}
+.vp.dragging{cursor:grabbing;}
+
+/* canvas uses CSS transform for zoom+pan */
+.canvas-wrap{
+  position:absolute;top:0;left:0;
+  transform-origin:0 0;
+  will-change:transform;
+}
 .canvas{position:relative;}
 
 /* SVG */
@@ -89,11 +103,11 @@ body{
   position:absolute;border-radius:10px;
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;text-align:center;
-  cursor:pointer;user-select:none;padding:8px 10px;border:1.5px solid transparent;
-  transition:box-shadow .15s,transform .15s,opacity .2s;
+  cursor:pointer;user-select:none;padding:7px 9px;border:1.5px solid transparent;
+  transition:box-shadow .15s,opacity .2s,filter .15s;
 }
-.wbs-node:hover{transform:translateY(-2px);}
-.wbs-node:active{transform:scale(.97);}
+.wbs-node:hover{filter:brightness(1.07);}
+.wbs-node:active{filter:brightness(.95);}
 .node-code{
   font-family:'IBM Plex Mono',monospace;font-size:9px;
   letter-spacing:.1em;margin-bottom:3px;opacity:.75;
@@ -101,19 +115,30 @@ body{
 .node-label{font-weight:600;line-height:1.25;}
 .node-hint{
   font-family:'IBM Plex Mono',monospace;font-size:9px;
-  margin-top:4px;opacity:.55;letter-spacing:.04em;
+  margin-top:3px;opacity:.55;letter-spacing:.04em;
 }
+
+/* ── TOOLTIP ── */
+.tooltip{
+  position:fixed;pointer-events:none;z-index:300;
+  background:rgba(33,31,26,.92);color:#fff;
+  font-family:'IBM Plex Mono',monospace;font-size:10px;
+  padding:5px 10px;border-radius:6px;letter-spacing:.04em;
+  opacity:0;transition:opacity .12s;white-space:nowrap;
+}
+.tooltip.show{opacity:1;}
 
 /* ── HINT ── */
 .hint-bar{
-  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
-  background:rgba(33,31,26,.85);color:#fff;font-size:11px;
+  position:fixed;bottom:14px;left:50%;transform:translateX(-50%);
+  background:rgba(33,31,26,.82);color:#fff;font-size:11px;
   font-family:'IBM Plex Mono',monospace;
-  padding:7px 18px;border-radius:20px;letter-spacing:.06em;
+  padding:6px 16px;border-radius:20px;letter-spacing:.06em;
   pointer-events:none;z-index:200;
-  animation:fadein .6s .8s both;
+  animation:fadein .6s 1s both, fadeout .5s 5s forwards;
 }
 @keyframes fadein{from{opacity:0;transform:translateX(-50%) translateY(6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes fadeout{to{opacity:0;}}
 </style>
 </head>
 <body>
@@ -124,31 +149,38 @@ body{
     <h1>Work Breakdown <em>Structure</em></h1>
   </div>
   <div class="pills">
-    <span class="pill">6 macro-aree</span>
+    <span class="pill">8 macro-aree</span>
     <span class="pill" id="pWP">— work package</span>
     <span class="pill" id="pTot">— nodi totali</span>
+    <span class="zoom-badge" id="zoomBadge">100%</span>
   </div>
   <div class="hdr-btns">
     <button class="btn" id="btnExp">Espandi tutto</button>
     <button class="btn" id="btnCol">Comprimi L2+</button>
+    <button class="btn" id="btnZoomIn">＋ Zoom</button>
+    <button class="btn" id="btnZoomOut">－ Zoom</button>
+    <button class="btn" id="btnReset">Reset zoom</button>
     <button class="btn primary" id="btnFit">↖ Centra</button>
   </div>
 </div>
 
 <div class="leg-bar" id="legBar">
-  <span class="leg-label-sm">Aree</span>
+  <span class="leg-label-sm">Macro-aree</span>
 </div>
 
 <div class="vp" id="vp">
-  <div class="canvas" id="canvas">
-    <svg class="tree-svg" id="svg"></svg>
+  <div class="canvas-wrap" id="canvasWrap">
+    <div class="canvas" id="canvas">
+      <svg class="tree-svg" id="svg"></svg>
+    </div>
   </div>
 </div>
 
-<div class="hint-bar">Click per espandere &middot; Scroll per navigare</div>
+<div class="tooltip" id="tooltip"></div>
+<div class="hint-bar">Click per espandere &middot; Scroll per zoom &middot; Trascina per navigare</div>
 
 <script>
-/* ═══════════════ AREA PALETTE ═══════════════ */
+/* ═══════════════ AREA PALETTE (8 aree) ═══════════════ */
 const AC = [
   {color:"#1e3a5f",bg:"#dce7f3"}, // 0 PM
   {color:"#2D7A57",bg:"#E4EFE8"}, // 1 DES
@@ -156,112 +188,167 @@ const AC = [
   {color:"#BE4A22",bg:"#F6E3D7"}, // 3 QFD
   {color:"#6B4E9B",bg:"#EDE6F5"}, // 4 CON
   {color:"#8B2020",bg:"#F5E0E0"}, // 5 FME
+  {color:"#0E6B7A",bg:"#D9F0F4"}, // 6 BM
+  {color:"#5C3D1E",bg:"#F2E8DC"}, // 7 SF
 ];
 
 const AREA_LABELS = [
   "Project Management","Desirability","Feasibility",
-  "QFD","Concept Design","FMECA"
+  "QFD","Concept Design","Analisi Cause di Guasto",
+  "Business Model","Strategic Foresight"
 ];
 
-/* ═══════════════ RAW TREE DATA ═══════════════ */
+/* ═══════════════ TREE DATA (aggiornato) ═══════════════ */
 const RAW = {label:"Content Transformer",code:"",children:[
-  {label:"Project Management",code:"0",children:[
-    {label:"Contesto e problema",code:"0.1"},
-    {label:"Obiettivo del progetto",code:"0.2"},
-    {label:"Criteri di successo",code:"0.3"},
-    {label:"Metodologia",code:"0.4"},
-    {label:"Strumenti – PMIS",code:"0.5"},
-    {label:"Pianificazione",code:"0.6",children:[
-      {label:"Scope Statement",code:"0.6.1"},
-      {label:"WBS",code:"0.6.2"},
-      {label:"Scheduling – Gantt",code:"0.6.3"},
-      {label:"Matrice RACI",code:"0.6.4"},
-      {label:"Lessons Learned",code:"0.6.5"},
+
+  /* ── 0. PROJECT MANAGEMENT ── */
+  {label:"Project Management",code:"II",children:[
+    {label:"Contesto e problema",code:"II.1"},
+    {label:"Obiettivo del progetto",code:"II.2"},
+    {label:"Criteri di successo",code:"II.3"},
+    {label:"Metodologia",code:"II.4"},
+    {label:"Strumenti",code:"II.5"},
+    {label:"Pianificazione del progetto",code:"II.6",children:[
+      {label:"Scope Statement",code:"II.6.1"},
+      {label:"Work Breakdown Structure",code:"II.6.2"},
+      {label:"Matrice RACI",code:"II.6.3"},
+      {label:"Lessons Learned",code:"II.6.4"},
     ]},
-    {label:"Monitoraggio KPI",code:"0.7"},
+    {label:"Indicatori di progetto",code:"II.7"},
   ]},
-  {label:"Desirability",code:"1",children:[
-    {label:"Buyer Persona",code:"1.1"},
-    {label:"Customer Workflow Map",code:"1.2"},
-    {label:"Point of View iniziale",code:"1.3"},
-    {label:"Analisi delle necessità",code:"1.4",children:[
-      {label:"Necessità latenti",code:"1.4.1"},
-      {label:"Necessità consapevoli",code:"1.4.2"},
-      {label:"Lista finale",code:"1.4.3"},
+
+  /* ── 1. DESIRABILITY ── */
+  {label:"Desirability",code:"III",children:[
+    {label:"Buyer Persona",code:"III.1"},
+    {label:"Customer Workflow Map",code:"III.2"},
+    {label:"Point of View iniziale",code:"III.3"},
+    {label:"Analisi delle necessità",code:"III.4",children:[
+      {label:"Necessità latenti",code:"III.4.1"},
+      {label:"Necessità consapevoli",code:"III.4.2"},
+      {label:"Lista finale delle necessità",code:"III.4.3"},
     ]},
-    {label:"Elaborazione bisogni",code:"1.5"},
-    {label:"Validazione bisogni",code:"1.6",children:[
-      {label:"Questionario",code:"1.6.1"},
-      {label:"Interviste",code:"1.6.2"},
-      {label:"Risultati validazione",code:"1.6.3"},
+    {label:"Elaborazione dei bisogni",code:"III.5"},
+    {label:"Validazione dei bisogni",code:"III.6"},
+    {label:"Formulazione delle ipotesi",code:"III.7",children:[
+      {label:"Questionario",code:"III.7.1"},
+      {label:"Intervista",code:"III.7.2"},
+      {label:"Risultati della validazione",code:"III.7.3"},
     ]},
-    {label:"Empathy Map",code:"1.7"},
-    {label:"POV definitivo",code:"1.8"},
+    {label:"Empathy Map",code:"III.8"},
+    {label:"Point of View definitivo",code:"III.9"},
   ]},
-  {label:"Feasibility",code:"2",children:[
-    {label:"Analisi PESTEL",code:"2.1",children:[
-      {label:"Politici",code:"2.1.1"},
-      {label:"Economici",code:"2.1.2"},
-      {label:"Sociali",code:"2.1.3"},
-      {label:"Tecnologici",code:"2.1.4"},
-      {label:"Ecologici",code:"2.1.5"},
-      {label:"Legali",code:"2.1.6"},
+
+  /* ── 2. FEASIBILITY ── */
+  {label:"Feasibility",code:"IV",children:[
+    {label:"Analisi del macroambiente",code:"IV.1",children:[
+      {label:"Fattori politici",code:"IV.1.1"},
+      {label:"Fattori economici",code:"IV.1.2"},
+      {label:"Fattori sociali",code:"IV.1.3"},
+      {label:"Fattori tecnologici",code:"IV.1.4"},
+      {label:"Fattori ecologici",code:"IV.1.5"},
+      {label:"Fattori legali",code:"IV.1.6"},
     ]},
-    {label:"Analisi del presente",code:"2.2",children:[
-      {label:"Google Trends",code:"2.2.1"},
-      {label:"Benchmarking",code:"2.2.2"},
-      {label:"Curve Schumpeter",code:"2.2.3"},
-      {label:"Analisi Scopus",code:"2.2.4"},
-      {label:"Stili apprendimento",code:"2.2.5"},
+    {label:"Analisi del presente",code:"IV.2",children:[
+      {label:"AI su Google Trends",code:"IV.2.1"},
+      {label:"Benchmarking competitivo",code:"IV.2.2"},
+      {label:"Curve di Schumpeter",code:"IV.2.3"},
+      {label:"Analisi su Scopus",code:"IV.2.4"},
+      {label:"Stili di apprendimento",code:"IV.2.5"},
     ]},
-    {label:"Strategie innovative",code:"2.3",children:[
-      {label:"SCAMPER",code:"2.3.1"},
-      {label:"Blue Ocean Strategy",code:"2.3.2"},
+    {label:"Strategie innovative",code:"IV.3",children:[
+      {label:"Metodo SCAMPER",code:"IV.3.1"},
+      {label:"Blue Ocean Strategy",code:"IV.3.2"},
     ]},
-    {label:"Tre soluzioni ortogonali",code:"2.4",children:[
-      {label:"Soluzione A",code:"2.4.1"},
-      {label:"Soluzione B",code:"2.4.2"},
-      {label:"Soluzione C",code:"2.4.3"},
+    {label:"Tre soluzioni ortogonali",code:"IV.4",children:[
+      {label:"Soluzione A",code:"IV.4.1"},
+      {label:"Soluzione B",code:"IV.4.2"},
+      {label:"Soluzione C",code:"IV.4.3"},
     ]},
-    {label:"Analisi di Fattibilità",code:"2.5"},
+    {label:"Analisi di fattibilità",code:"IV.5"},
   ]},
-  {label:"Quality Function Deployment",code:"3",children:[
-    {label:"Stanza 1 – Voce cliente",code:"3.1"},
-    {label:"Stanza 2 – CTQ",code:"3.2"},
-    {label:"Stanza 3 – Relazioni",code:"3.3"},
-    {label:"Stanza 4 – Benchm. percezioni",code:"3.4"},
-    {label:"Stanza 5 – Benchm. aziendale",code:"3.5"},
-    {label:"Stanza 6 – Correlazione",code:"3.6"},
-    {label:"Stanza 7 – Req. critici",code:"3.7"},
-    {label:"Stanza 8 – Specifiche",code:"3.8"},
-    {label:"QFD e costi",code:"3.9"},
+
+  /* ── 3. QFD ── */
+  {label:"Quality Function Deployment",code:"V",children:[
+    {label:"Voce del cliente",code:"V.1"},
+    {label:"Requisiti del prodotto",code:"V.2"},
+    {label:"Relazione metriche–bisogni",code:"V.3"},
+    {label:"Benchmarking percezioni cliente",code:"V.4"},
+    {label:"Benchmarking rilevazioni aziendali",code:"V.5"},
+    {label:"Matrice di correlazione",code:"V.6"},
+    {label:"Requisiti critici",code:"V.7"},
+    {label:"Specifiche di prodotto",code:"V.8"},
+    {label:"QFD e costi",code:"V.9"},
   ]},
-  {label:"Concept Design",code:"4",children:[
-    {label:"Caratteristiche tecniche",code:"4.1",children:[
-      {label:"Fondamenti scientifici",code:"4.1.1"},
+
+  /* ── 4. CONCEPT DESIGN ── */
+  {label:"Concept Design",code:"VI",children:[
+    {label:"Fondamenti scientifici",code:"VI.1"},
+    {label:"Pretotipo",code:"VI.2",children:[
+      {label:"Formulazione dell'ipotesi",code:"VI.2.1"},
+      {label:"Fasi di sviluppo",code:"VI.2.2"},
+      {label:"Metriche di testing",code:"VI.2.3"},
+      {label:"Risultato del pretotipo",code:"VI.2.4"},
     ]},
-    {label:"Sistema rielaborazione adattivo",code:"4.2",children:[
-      {label:"Ontologia",code:"4.2.1"},
-      {label:"Rielaborazione reattiva",code:"4.2.2"},
+    {label:"Il prodotto",code:"VI.3",children:[
+      {label:"Ontologia della conoscenza",code:"VI.3.1"},
+      {label:"Rielaborazione reattiva",code:"VI.3.2"},
+      {label:"Design di prodotto",code:"VI.3.3"},
     ]},
-    {label:"Prodotto e varianti",code:"4.3",children:[
-      {label:"Design ottimale",code:"4.3.1"},
-      {label:"Varianti del prodotto",code:"4.3.2"},
+    {label:"Varianti del prodotto",code:"VI.4",children:[
+      {label:"Variante scuole superiori",code:"VI.4.1"},
+      {label:"Variante formazione aziendale",code:"VI.4.2"},
     ]},
-    {label:"Sviluppo del prototipo",code:"4.4",children:[
-      {label:"Formulazione ipotesi",code:"4.4.1"},
-      {label:"Sviluppo",code:"4.4.2"},
-      {label:"Misura",code:"4.4.3"},
-      {label:"Risultato",code:"4.4.4"},
-      {label:"Opportunità",code:"4.4.5"},
+    {label:"Prototipo",code:"VI.5",children:[
+      {label:"Formulazione dell'ipotesi",code:"VI.5.1"},
+      {label:"Fasi di sviluppo",code:"VI.5.2"},
+      {label:"Metriche di testing",code:"VI.5.3"},
+      {label:"Risultato del prototipo",code:"VI.5.4"},
+      {label:"Opportunità di miglioramento",code:"VI.5.5"},
     ]},
   ]},
-  {label:"FMECA",code:"5",children:[
-    {label:"Funzioni e modi di guasto",code:"5.1"},
-    {label:"Analisi conseguenze e cause",code:"5.2"},
-    {label:"Quantificazione RPN",code:"5.3"},
-    {label:"Matrice del rischio",code:"5.4"},
+
+  /* ── 5. ANALISI CAUSE DI GUASTO ── */
+  {label:"Analisi Cause di Guasto",code:"VII",children:[
+    {label:"Modi di guasto",code:"VII.1"},
+    {label:"Cause ed effetti di guasto",code:"VII.2"},
+    {label:"Quantificazione del rischio",code:"VII.3"},
+    {label:"Matrice di gestione dei rischi",code:"VII.4"},
   ]},
+
+  /* ── 6. BUSINESS MODEL ── */
+  {label:"Business Model",code:"VIII",children:[
+    {label:"Contesto di mercato",code:"VIII.1"},
+    {label:"Opzioni di business",code:"VIII.2"},
+    {label:"Modello B2C – Token Economy",code:"VIII.3"},
+    {label:"Evidenze scientifiche a supporto",code:"VIII.4"},
+    {label:"Fasi del business",code:"VIII.5"},
+  ]},
+
+  /* ── 7. STRATEGIC FORESIGHT ── */
+  {label:"Strategic Foresight",code:"IX",children:[
+    {label:"Analisi STEEP",code:"IX.1",children:[
+      {label:"Sociale",code:"IX.1.1"},
+      {label:"Tecnologico",code:"IX.1.2"},
+      {label:"Economico",code:"IX.1.3"},
+      {label:"Ecologico",code:"IX.1.4"},
+      {label:"Politico-Regolatorio",code:"IX.1.5"},
+    ]},
+    {label:"Matrice Impatto–Incertezza",code:"IX.2"},
+    {label:"Incertezze critiche",code:"IX.3"},
+    {label:"Quattro scenari al 2035",code:"IX.4"},
+    {label:"Scenario narrativo",code:"IX.5",children:[
+      {label:"Future Personas",code:"IX.5.1"},
+    ]},
+    {label:"Scenario Immersion",code:"IX.6"},
+    {label:"Strategizing",code:"IX.7"},
+    {label:"Visioning e Roadmapping",code:"IX.8",children:[
+      {label:"Vision",code:"IX.8.1"},
+      {label:"Roadmap",code:"IX.8.2"},
+    ]},
+    {label:"Strategy",code:"IX.9"},
+    {label:"Planning",code:"IX.10"},
+  ]},
+
 ]};
 
 /* ═══════════════ ENRICH ═══════════════ */
@@ -274,9 +361,9 @@ function enrich(node,level,area){
 }
 enrich(RAW,0,-1);
 
-/* ═══════════════ LAYOUT CONSTANTS ═══════════════ */
-const NW=155, PAD=60, V_GAP=80, H_UNIT=172;
-const NH=[70,58,48,42]; // height per level
+/* ═══════════════ LAYOUT ═══════════════ */
+const NW=152, PAD=56, V_GAP=76, H_UNIT=168;
+const NH=[68,56,46,40];
 
 function getSpan(n){
   if(n.collapsed||!n.children.length)return 1;
@@ -313,7 +400,6 @@ function render(){
   allNodes=[];
   layout(RAW,PAD,PAD);
 
-  // canvas size
   let maxX=0,maxY=0;
   allNodes.forEach(n=>{maxX=Math.max(maxX,n.x+n.w+PAD);maxY=Math.max(maxY,n.y+n.h+PAD);});
   canvas.style.width=maxX+'px';canvas.style.height=maxY+'px';
@@ -325,7 +411,16 @@ function render(){
     if(!el){
       el=document.createElement('div');
       el.className='wbs-node';
-      el.addEventListener('click',()=>{if(n.children.length){n.collapsed=!n.collapsed;render();}});
+      el.addEventListener('click',e=>{
+        if(wasDragging)return;
+        if(n.children.length){n.collapsed=!n.collapsed;render();}
+      });
+      // tooltip
+      el.addEventListener('mouseenter',e=>{
+        if(n.level>1){showTooltip(e,n.code+' — '+n.label);}
+      });
+      el.addEventListener('mousemove',e=>{moveTooltip(e);});
+      el.addEventListener('mouseleave',()=>hideTooltip());
       canvas.appendChild(el);
       domMap[n.id]=el;
     }
@@ -333,7 +428,7 @@ function render(){
     Object.assign(el.style,{
       left:n.x+'px',top:n.y+'px',width:n.w+'px',height:n.h+'px',
       background:st.bg,color:st.fg,borderColor:st.border,
-      fontSize:n.level===0?'14px':n.level===1?'12.5px':'11px',
+      fontSize:n.level===0?'13px':n.level===1?'12px':'10.5px',
       fontWeight:n.level<=1?'700':'600',
       boxShadow:n.level<=1?'0 2px 8px rgba(33,31,26,.14),0 8px 24px rgba(33,31,26,.1)':'0 1px 4px rgba(33,31,26,.09)',
     });
@@ -346,12 +441,10 @@ function render(){
     el.style.display='flex';
   });
 
-  // remove stale
   Object.keys(domMap).forEach(id=>{
     if(!seen.has(+id)){domMap[id].remove();delete domMap[id];}
   });
 
-  // lines
   const paths=[];
   allNodes.forEach(n=>{
     if(n.collapsed)return;
@@ -367,8 +460,7 @@ function render(){
   });
   svgEl.innerHTML=paths.join('');
 
-  // stats
-  const leaves=countLeaves(RAW), total=countAll(RAW);
+  const leaves=countLeaves(RAW),total=countAll(RAW);
   document.getElementById('pWP').textContent=leaves+' work package';
   document.getElementById('pTot').textContent=total+' nodi';
 }
@@ -376,29 +468,169 @@ function render(){
 function countAll(n){return 1+(n.children||[]).reduce((s,c)=>s+countAll(c),0);}
 function countLeaves(n){if(!n.children||!n.children.length)return 1;return n.children.reduce((s,c)=>s+countLeaves(c),0);}
 
+/* ═══════════════ TOOLTIP ═══════════════ */
+const tip=document.getElementById('tooltip');
+function showTooltip(e,txt){tip.textContent=txt;tip.classList.add('show');moveTooltip(e);}
+function moveTooltip(e){tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY-28)+'px';}
+function hideTooltip(){tip.classList.remove('show');}
+
 /* ═══════════════ LEGEND ═══════════════ */
 const lb=document.getElementById('legBar');
 AC.forEach((ac,i)=>{
   const sp=document.createElement('span');
   sp.className='leg-item';
-  sp.innerHTML=`<span class="leg-dot" style="background:${ac.color}"></span>${i}. ${AREA_LABELS[i]}`;
+  sp.title='Clicca per centrare';
+  sp.innerHTML=`<span class="leg-dot" style="background:${ac.color}"></span>${AREA_LABELS[i]}`;
+  // click on legend → scroll to that L1 node
+  sp.addEventListener('click',()=>{
+    const target=RAW.children[i];
+    if(!target)return;
+    // expand it
+    target.collapsed=false;render();
+    // center on it
+    const el=domMap[target.id];
+    if(!el)return;
+    const nodeX=parseInt(el.style.left)+NW/2;
+    const nodeY=parseInt(el.style.top)+target.h/2;
+    panTo(nodeX,nodeY);
+  });
   lb.appendChild(sp);
 });
 
-/* ═══════════════ CONTROLS ═══════════════ */
+/* ═══════════════ PAN + ZOOM ═══════════════ */
+const vp=document.getElementById('vp');
+const wrap=document.getElementById('canvasWrap');
+let scale=1, panX=0, panY=0;
+let isDragging=false, wasDragging=false;
+let startMX=0,startMY=0,startPX=0,startPY=0;
+const DRAG_THRESHOLD=5;
+
+function applyTransform(){
+  wrap.style.transform=`translate(${panX}px,${panY}px) scale(${scale})`;
+  document.getElementById('zoomBadge').textContent=Math.round(scale*100)+'%';
+}
+
+function clampPan(){
+  // loose clamp — allow generous exploration
+  const vw=vp.clientWidth, vh=vp.clientHeight;
+  const cw=parseFloat(canvas.style.width)||2000;
+  const ch=parseFloat(canvas.style.height)||1500;
+  const minX=-(cw*scale-vw*0.2);
+  const minY=-(ch*scale-vh*0.2);
+  panX=Math.min(vw*0.8,Math.max(minX,panX));
+  panY=Math.min(vh*0.8,Math.max(minY,panY));
+}
+
+vp.addEventListener('mousedown',e=>{
+  if(e.button!==0)return;
+  isDragging=true; wasDragging=false;
+  startMX=e.clientX; startMY=e.clientY;
+  startPX=panX; startPY=panY;
+  vp.classList.add('dragging');
+  e.preventDefault();
+});
+window.addEventListener('mousemove',e=>{
+  if(!isDragging)return;
+  const dx=e.clientX-startMX, dy=e.clientY-startMY;
+  if(Math.abs(dx)+Math.abs(dy)>DRAG_THRESHOLD) wasDragging=true;
+  panX=startPX+dx; panY=startPY+dy;
+  clampPan();
+  applyTransform();
+});
+window.addEventListener('mouseup',()=>{
+  isDragging=false;
+  vp.classList.remove('dragging');
+  // reset wasDragging after a tick so click handler can read it
+  setTimeout(()=>{wasDragging=false;},10);
+});
+
+// touch support
+let touchStart=null;
+vp.addEventListener('touchstart',e=>{
+  if(e.touches.length===1){
+    touchStart={x:e.touches[0].clientX,y:e.touches[0].clientY,px:panX,py:panY};
+    wasDragging=false;
+  }
+},{passive:true});
+vp.addEventListener('touchmove',e=>{
+  if(!touchStart||e.touches.length!==1)return;
+  const dx=e.touches[0].clientX-touchStart.x;
+  const dy=e.touches[0].clientY-touchStart.y;
+  if(Math.abs(dx)+Math.abs(dy)>DRAG_THRESHOLD) wasDragging=true;
+  panX=touchStart.px+dx; panY=touchStart.py+dy;
+  clampPan(); applyTransform();
+  e.preventDefault();
+},{passive:false});
+vp.addEventListener('touchend',()=>{
+  setTimeout(()=>{wasDragging=false;touchStart=null;},10);
+});
+
+// scroll = zoom
+vp.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const rect=vp.getBoundingClientRect();
+  const mx=e.clientX-rect.left;
+  const my=e.clientY-rect.top;
+  const delta=-e.deltaY;
+  const factor=delta>0?1.1:0.91;
+  const newScale=Math.max(0.25,Math.min(3,scale*factor));
+  // zoom toward cursor
+  panX=mx-(mx-panX)*(newScale/scale);
+  panY=my-(my-panY)*(newScale/scale);
+  scale=newScale;
+  clampPan(); applyTransform();
+},{passive:false});
+
+function panTo(nodeX,nodeY){
+  const vw=vp.clientWidth,vh=vp.clientHeight;
+  panX=vw/2-nodeX*scale;
+  panY=vh/2-nodeY*scale;
+  clampPan(); applyTransform();
+}
+
+/* ═══════════════ BUTTON CONTROLS ═══════════════ */
 function setAll(n,v){if(n.children.length){n.collapsed=v;n.children.forEach(c=>setAll(c,v));}}
 document.getElementById('btnExp').onclick=()=>{setAll(RAW,false);render();};
 document.getElementById('btnCol').onclick=()=>{RAW.children.forEach(c=>setAll(c,true));render();};
+document.getElementById('btnZoomIn').onclick=()=>{
+  scale=Math.min(3,scale*1.2);
+  const vw=vp.clientWidth,vh=vp.clientHeight;
+  panX=vw/2-(vw/2-panX)*1.2; panY=vh/2-(vh/2-panY)*1.2;
+  clampPan(); applyTransform();
+};
+document.getElementById('btnZoomOut').onclick=()=>{
+  scale=Math.max(0.25,scale/1.2);
+  const vw=vp.clientWidth,vh=vp.clientHeight;
+  panX=vw/2-(vw/2-panX)/1.2; panY=vh/2-(vh/2-panY)/1.2;
+  clampPan(); applyTransform();
+};
+document.getElementById('btnReset').onclick=()=>{
+  scale=1; panX=0; panY=0; applyTransform();
+};
 document.getElementById('btnFit').onclick=()=>{
-  document.getElementById('vp').scrollTo({left:0,top:0,behavior:'smooth'});
+  scale=1; panX=0; panY=0;
+  // center on root
+  render();
+  const root=domMap[RAW.id];
+  if(root){
+    const vw=vp.clientWidth;
+    panX=vw/2-(parseInt(root.style.left)+NW/2)*scale;
+    panY=20;
+    clampPan(); applyTransform();
+  }
 };
 
 /* ═══════════════ INIT ═══════════════ */
 render();
+// initial centering on root
 setTimeout(()=>{
-  const vp=document.getElementById('vp');
   const root=domMap[RAW.id];
-  if(root) vp.scrollLeft=Math.max(0,parseInt(root.style.left)+NW/2-vp.clientWidth/2);
+  if(root){
+    const vw=vp.clientWidth;
+    panX=vw/2-(parseInt(root.style.left)+NW/2);
+    panY=20;
+    clampPan(); applyTransform();
+  }
 },60);
 </script>
 </body>
